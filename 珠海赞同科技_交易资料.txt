@@ -1,0 +1,2252 @@
+-------------------------------------新手秘籍-名词解析----------------------------------------
+AB (Agree Browser)：							 赞同图形终端（处理柜台界面）,AB就是前端处理数据录入的工具,这个是进行前端界面功能开发。有对应的ABIDE开发工具,关联前端ABS服务器。
+AFA(Agree Financial Architecture)：赞同中间业务平台（处理业务逻辑）,AFA使用的是python脚本语言编写的程序,负责具体业务需求的业务逻辑处理,进行业务逻辑功能的编写。有对应的AFAIDE开发工具,关联前置AFA服务器服务器。
+AFE(Agree Front-End)：						 赞同通讯前置（处理各异构系统）,AFE在东莞银行这边也叫ECI,是一个处理通讯数据交互的工具,这个是进行报文数据处理功能开发,例如：Axml报文转换为xml报文负责和所有系统交换数据的中转站。关联前置ECI服务器服务器。
+通讯流程：AB--ECI--AFA(部分交易会发核心或者第三方)--ECI--AB(一个闭环) 相关联系：AB拼XML报文 -->AFE拆包转换NATP报文-->AFA进行处理（处理结果原路返回去）。
+环境服务器				银行类或者大多数安全性较高的企业都会有不同的服务器环境,开发环境主要用于开发人员编码开发以及内部SIT测试,致命BUG修复,测试环境主要用于测试人员UAT测试,SIT未测到的致命bug以及轻微bug修复,预投产主要由业务人员进行交易验证,保证交易可以正常进行,生产环境是最终上线环境,正常客户去银行做业务的环境,一般的需求预投产时间较短,更完预投产几天内就会投产。
+POC(系统概念验证）是进行系统采购的系统筛选工作范畴内的主要工作。系统概念验证不等于也不会取代系统开发过程中的系统原型演示（System Prototyping）与系统测试（System Testing）的工作。
+F5(负载均衡)			负载均衡是一种技术,指通过某种算法实现负载分担的方法。由一台指定的设备统一分配所有到请求,按照设定好的算法分配给各个负载均衡组中的成员。F5是一个负载均衡中的一个品牌,类似于苹果、三星在手机品牌中的位置,像其他Radware、A10,Cisco等一样,因为F5知名度最大,所以经常说F5负载均衡。
+ESB系统						我司分为治理平台、实施平台、监控平台、组合平台,系统主要功能是把一些接口服务化,治理平台只要是分析已有接口和新需求确定要治理的接口,实施平台主要是将这些接口在ESB系统实施,监控平台主要对这些接口进行监控。
+SVN(版本管理)			只是简单的使用svn服务器管理文件的版本,实现下载、上传的功能。
+CRT(SecureCRT)		LINUX服务器日志查看工具。
+PLSQL							ORACLE数据库图形化管理工具
+datamap.map       前端AB通讯码prcscd关联前置交易码的配置文件(/home/eci/controller/base/BOD_CNT_IN/NEW_CNT_IN/datamap.map),包含：前端通讯码、渠道标识(发起)、前置交易模板、前置交易名称、系统标识(sysid)、渠道分类、渠道标识(接收)、勾兑标识tradeFlag、eci发送目的地(cnttoafa是发往前置,cnttohst是发往核心,其他的是发到其他系统)
+route.rt          前置路由文件,由F5对发到前置的各个交易进行分发,分别发往不同的前置工作组(/home/eci/controller/base/BOD_OUTPUT/OUTPUT_AFA/route.rt)：柜员管理交易(9001/9002)、参数管理交易(9003/9004)、代收代付交易(9005/9006)、大小额(9007/9008)、新EFT交易(9011/9012)、全国网银支付2(9013/9014)、东莞柜面通中心(9015/9016)、东莞财税库行(9017/9018)、深圳同城支付(9019/9020)、银网通支付系统(9021/9022)、深圳同城支付二代(9021/9022)、深圳财税库(9023/9024)、大小额二代(9025/9026)、联网核查(9029/9030)、积分交易(9031/9032)、全国财税库(9033/9034)、天安(9035/9036)、三方存管/黄金(9037/9038)、财政非税系统(9039/9040)、广东跨行代收(9041/9042)、东莞财政集中支付(9045/9046)、备付金存管(9047/9048)、二代支付系统代理村镇(9049/9050)、司法查控系统(9053/9054)、第三方params(9055/9056)、冠字号信息管理系统(9057/9058)、韶关统一收付(9065/9066)、
+MQ队列						一般环境不通的话先判断前置eci应用是否启动、afa工作组是否启动,再去连接mq启动消息队列,清空队列深度即可以解决问题。
+套账(mptran)			可以理解为一套独立的账务,包含完整的系统参数,档案,权限,会计信息,账表查询等,一般银行的账务都在核心处理,所以套账一般解释成上核心套账或者上主机套账,套账后的效果就是该笔账务已经入账处理完毕,相应款项会由相应的账户进行划扣,简答点将就是这笔账务完成了,和信用卡的入账一个道理,信用卡的账务一般会在2-3天内入账,期间发现被盗刷可以申请退款,过了时间账务没有发生问题就会自动入账。	
+核心接口超时处理	各种核心接口的超时详见下方内容。
+对账							批量业务的对账以批量回执文件为准,实时业务的对账以对账文件为准,
+常用核心接口			mpckpw账户密码验证、mptran套账交易、mptrfe跨转套帐交易、mpmtac套帐冲正交易、mptrun通用记账交易、mpqrts主机流水查询、mpfraz止付交易、mpunfz解止付交易、mpusdp凭证使用、mpqrsk出售凭证查询、mpudfz结算凭证使用并止付、mpqrac查询账户信息、mpckac账户信息检查、mpdymd综合前置跨行信息同步、mpqraj综合前置账户流水查询、miqrus查询柜员、mpdtck获取明细信息、mpttck获取汇总信息
+学习资料：				ftp://10.10.12.11 用户名密码都是agree Tools_DG放置东莞银行相关的开发工具 DOC放置一些学习文档
+									https://10.10.12.11/svn/SVN_TY/ECI拼拆包异常  															ECI拼拆包异常交易全套源码加说明文档SVN地址
+				  				https://10.10.12.11/svn/SVN_TY/Source_TY      															个人写的一些小工具,有兴趣的同学可以自行使用svn检出down下来查看
+				  				https://10.10.12.11/svn/SVN_TY/Doc_TY/珠海赞同科技_交易资料.txt 						加入赞同所碰到的前端前置问题总结,有兴趣的同学可以自行使用svn检出down下来查看
+				  				https://10.10.12.11/svn/SVN_TY/Source_TY/TyTools/appTools.rar 							通讯码各种查询小工具
+									ftp://10.10.12.11/DOC/TEST_TY/Doc_TY/珠海赞同科技_交易资料.txt 		 					FTP地址开发中碰到的问题我都会整理起来,放到交易资料的文件中去,有需要的朋友可以到我个人ftp或者svn去down：
+天意简介：谭张祯,男,汉族,计算机科学与技术专业,笔名：天意。祯在汉语字典里意思是吉祥如意,笔名天意取自：天地玄黄,吉祥如意！爱好：游泳、散步。志向：弘扬传统文化。
+兴趣爱好：因为开源,所以进步！天意,专业从事软件折腾二十余年！
+业余拓展：专业承接小型网站、Android、IOS app开发,信用卡小额、大额、蚂蚁花呗套现业务,费率0.38%-0.8%,需要的朋友联系。请认准天意品牌,专业从事软件折腾20年。寻求实力合伙人一起创业!					
+要点总结：AB (Agree Browser)、AFA(Agree Financial Architecture)、AFE(Agree Front-End)、ABS、ECI、F5(负载均衡)、SVN(版本管理)、GIT(版本管理)、F5、POC、ESB、ESC、MQ、CRT(SecureCRT)、PLSQL、套账、止付、解止付、对账、超时、
+----------------------------------------------------------------------------------------------
+必备技能：交易流程分析、异常获取及处理
+简述：AB--ECI--AFA(部分交易会发核心或者第三方)--ECI--AB(一个闭环) AB前端或者ltts前端发起交易,前端服务器会发数据到前置eci服务器,拆包后按照前置eci配置的取值接口取特定字段送到前置afa服务器由afa对应交易处理,处理完毕后返回给eci服务器,拆包后按照eci配置的返回接口返回数据给前端柜面。接口命名一般按照渠道标识区分 SEND_TO_AFA_BODY.rcd这个是发往afa的接口 SEND_TO_CNT_BODY.rcd这个是发往柜面的接口
+			前端前置因为都是我们公司的，我们有权限查看数据库和日志，第三方系统的因为保密性等原因，数据库与日志就无法查看了，具体要找对应系统的负责人，一般联系需求负责的行方项目经理即可。
+1、CRT(SecureCRT)查询前端日志获取流水 channelserno = [2016110806117170]、通讯码prcscd = [meserly].
+2、开发人员根据通讯码和渠道流水去前置ECI配置文件datamap.map查对应的记录获取前置交易模板、前置交易名称.或者使用小工具smallTools.jar输入通讯码查菜单获取,小工具请使用svn检出(也可以复制到浏览器打开,用户名密码都是agree) https://10.10.12.11/svn/SVN_TY/Source_TY/TyTools/appTools.rar 							
+3、再根据查到的数据定位到前置AFA的交易日志,找出对应的sql及错误信息.或者使用小工具smallTools.jar输入通讯码选择环境、模块后查日志获取,获取最新的前置日志到down目录,按时间排序即可查看最新的日志
+4、然后分析日志,查找问题,没数据就去数据库改sql,联表查询会复杂一点。
+
+一个交易,不论查询还是异常处理,都需要这么4步,有问题建议自己先思考,把问题汇总起来,再去请教其他人,三人行,必有我师焉！
+对于开发、测试过程中碰到各种超时、ECI拼拆包异常等问题,希望各位大兄弟可以自己去学会去查看ab日志、eci日志和afa日志,给自己多学一点总是好的,目前配合前端翻写问题的前置人员主要就我和华哥,有问题找我如果没有及时应答,肯定是在忙其他事抽不开身,希望各位大兄弟不要老催,也不要有什么情绪,前置我负责的需求也很多,还要兼顾前端,前置人少,有时候实在是忙不过来,我有空的话肯定会第一时间帮大家处理的,有问题的话欢迎吃饭时候或者下班之后一起讨论,希望大家多理解下,如果情况确实比较急大家可以去找找其他前置人员。
+----------------------------------------------------------------------------------------------
+必备技能：查看日志
+不论作为开发还是测试人员,最基本的abs、eci、afa日志寻找问题的技能都应该掌握,尤其以后平台升级4.0版本后不再分前端前置,都需要掌握AB/AFA开发,毕竟学东西是给自己学的,各位大兄弟们有兴趣的自己多深入研究下,需要交流的可以来找我。使用crt或者其他ssh软件登陆linux服务器,crt可在ftp://10.10.12.11/Tools_KF/ 下载crt后登陆,查看AB-ECI-AFA日志获取自己需要的内容。ab日志和afa日志比较简单，eci发前置的日志也不麻烦，比较坑爹的是前端或者渠道过前置发第三方的日志，需要转很多次，具体流程下边会单独描述.
+说明：新老前端的区别就是 NEW_CNT_IN和CNT_IN，配置文件datamap/ECI接口文件 与 日志文件的区别就是：controller/base 和 controller/log/base
+
+一、前端AB日志查询:
+前端AB日志主要是核对上送字段、prcscd，以及核实后台返回字段、表格数据、前端流水号channelserno、通讯码prcscd  10.10.10.77 端口:22 用户名密码:abs/abs  vlog命令 回车后 输入柜员号即可快速查看对应柜员当天的日志,shift+g倒序查看,ctrl+u向上翻页半屏
+
+二、前置ECI的日志
+1、前端AB服务器日志获取前端流水号channelserno、通讯码prcscd  10.10.10.77 端口:22 用户名密码:abs/abs  vlog命令 回车后 输入柜员号即可快速查看对应柜员当天的日志,shift+g倒序查看,ctrl+u向上翻页半屏
+2、前置ECI日志确认前端上送信息  10.10.10.10 端口:22 用户名密码:eci/eci+123 登陆后切换指定路径(详见各系统日志路径)查看日志,重点是：拆包部分的日志,左侧 新柜面渠道接入-06351158,一次通讯会产生一个session:06351158这样的标识。
+   寻找第一个session:06351158对应的即为前端上送的报文的拆包内容，例如：
+   2016-11-29 10:00:18,796 DEBUG  新柜面渠道接入-06351158 [SoapAnalyzer        ] 拆包 @ Request.Body.entrustbatchno.value=
+   2016-11-29 10:00:18,796 DEBUG  新柜面渠道接入-06351158 [SoapAnalyzer        ] 拆包 @ Request.Body.menutrcd.value=00002877
+   对比新老前端上送的报文,看看哪个字段值不一样。eci日志一般刷新很快,隔一个小时就找不到了,所以做完交易后要马上到eci查看日志
+   前置ECI LTTS日志路径：cd /home/eci/controller/log/base/BOD_CNT_IN/CNT_IN/log 
+   前置ECI AB日志路径：  cd /home/eci/controller/log/base/BOD_CNT_IN/NEW_CNT_IN/log 
+   之后老前端view CNT_IN.log 新前端view NEW_CNT_IN.log
+3、前置ECI日志确认前置交易模板和交易名称 继续查看eci日志会看到 匹配结果 = [[xwnpb001, CNT, params, regfly, 85, 005, CNT, 2, cnttonpb, 0, 小企业手机银行客户签约, ]，如果有多个匹配，取最后一个匹配结果，*号的匹配结果表示默认，如果没有匹配到，就会默认发*号，这个是上核心的cnttohst 
+	 在已知前端通讯码prcscd的前提下也可以直接去前置的配置文件中找对应的交易模板和交易名称。约定:此处用sss代表前端的通讯码,aaa代表前置交易模板,bbb代表前置交易名称。
+	 a、查看datamap.map文件(或者直接使用小工具smallTools.jar通过前端的通讯码sss查询前置的配置)记录下row单元的前置交易模板aaa(一般是字母)和交易名称bbb(一般是数字)。
+	 b、用crt查看的话首先登陆10.10.10.10 用户名密码:eci/eci+123 切换到新老前端的目录下：
+			新前端配置文件: view /home/eci/controller/base/BOD_CNT_IN/NEW_CNT_IN/datamap.map
+			老前端配置文件: view /home/eci/controller/base/BOD_CNT_IN/CNT_IN/datamap.map
+			/ sss 					 /命令从上往下搜索前端通讯码
+			? sss						 ?命令从下往上搜索前端通讯码
+        <Row>
+            <Cell Value="usrgqr"/>     ----前端通讯码
+            <Cell Value="CNT"/>				 ----渠道标识(发起)
+            <Cell Value="teller"/>		 ----前置交易模板(也可以解释为前置应用工作组)
+            <Cell Value="001003"/>		 ----前置交易名称
+            <Cell Value="00"/>				 ----系统标识(sysid)
+            <Cell Value="005"/>				 ----渠道分类
+            <Cell Value="CNT"/>				 ----渠道标识(接收)
+            <Cell Value="0"/>					 ----勾兑标识tradeFlag 0默认不记勾兑 1记勾兑需要流水 2记流水不需要勾兑  4为直接穿透交易 5为异常确认交易
+            <Cell Value="cnttoafa"/>	 ----eci发送目的地(cnttoafa是发往前置,cnttohst是发往核心,其他的是发到其他系统)
+            <Cell Value="0"/>					 ----checkFlag
+            <Cell Value="行员注册系统信息查询多"/>----pb_transnam
+            <Cell Value=""/>					-----pb_stagflag
+        </Row>
+三、前置AFA日志 
+1、afa用户登陆10.10.5.241 用户名密码:afa/afa+123 ,然后cd log切换到log目录下,再cd 到交易目录下，前置4.0以后按日期建交易模板文件夹，前置3.0部分服务器为了区别不同的系统和功能,会在交易模板后边加_G00、_G02等,table补全可以少输入一些内容
+2、输入ls -rtn 按时间排序获取当天全部,查看最新一笔 shift+g 倒序查看,寻找异常信息位置。 部分服务器配置了shell脚本，在交易目录下输入log可以查看最新一笔的日志
+3、倒序寻找最后一条select语句,找到后复制到plsql中执行,将where条件作为查询字段,依次减少where条件,直到查出结果,修改查询字段的值即可。修改值的时候建议使用for update，也可以点击加锁按钮使其状态变为解锁,如果点击没反应,则在查询条件加一个rowid,然后就可以改了,改后记得点击锁定,然后F10提交,不然容易锁表,切记。
+	 前置新平台AFA4J日志：/home/afa/log/当前日期/前置交易模板/前置交易名称/	之后 ls -rtn 按时间倒序排序，view 日志名即可查看最新笔日志 或者使用小工具smallTools.jar查看
+	 前置老平台AFA3.0日志:/home/afa/log/前置交易模板/	之后 ls -rtn *前置交易名称* 按时间排序指定交易 或者使用小工具smallTools.jar输入通讯码选择环境、模块后查日志获取,获取最新的前置日志到down目录,按时间排序即可查看最新的日志
+	 也可以使用find命令搜索文件夹 
+	 开发的afa搜索命令: find /home/afa/log -type d -name 601003 -printf "cd %p\n"
+	 测试的afa搜索命令: find /home/afa/log -name *601003* -printf "vsssiew %p\n"
+	 
+四、前置发第三方系统ECI日志
+这块比较复杂，前置主要是整合各个系统的数据，所以第三方接入前置的会比较多，基本都是通过ECI接入接出，所以日志基本和前端到前置ECI日志一样，区别在于这类交易跳转的比较多，需要查日志的地方一般都要查好几处，前端经前置发第三方的只要在datamap中能找到的都会去前置登记流水，找不到就默认走*号节点上核心了，但是eci这边也会在日志中打印拆拼包信息。集体流程如下：
+1、先用通讯码或者流水 grep -l channelserno/prcscd *找到有这笔流水的日志，然后view查看
+2、shift+g倒序查看(因为日志越往后的越新),然后?channelserno/prcscd 搜索到该笔流水,寻找第一个session:06351158,其对应的即为前端上送的报文的拆包内容，ctrl+d往下找即为该交易在eci处理的流程，一步步分析，非错误出可快速略过，找到错误处后再一步步回退ctrl+u往上找，一步步分析他错误的点。
+3、如果发第三方错误，找到错误地方之后ctrl+u往上找，找最近的一个JMS消息发送组件 下一行 调用应用:base/BOD_OUTPUT/OUTPUT_NPB,流水号:00055562，之后克隆crt窗口切换到/home/eci/controller/log/拼接刚才的base/BOD_OUTPUT/OUTPUT_NPB，再加一个log目录即得到新的接出地址/home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_NPB/log/ 之后grep -l 00055562 * 搜索流水，继续查看日志，新的日志新的session，但是会保持一致。
+4、在最后一个出问题的日志路径下可以看到错误信息，碰到发MQ的和发 远程主机 : 10.10.21.83 远程端口 : 21111 类似的这种情况一般前置的发送流程就走完了，可以用最后的session搜当前日志，看看有没有应答的记录，一般有发都有回的，要么拒绝，要么超时。超时这种问题如果等待时间超过30S就属于正常通讯超时，一个交易发多个系统，上核心10s，前置处理10s，再发个第三方10s，环境原因网络卡等导致加在一起就超过30s了，没超过30s一般的问题就是对方系统没有启动，测试环境前置的应用都启动着
+5、如果前置接出的有问题测试环境找曾令满和陈迪，开发环境找天意或者李梓华，常见的错误是对方系统拒绝连接、对方系统应答超时、第三方系统有问题参考下边必备技能-求助专业人员，或者找对应需求的项目经理，他们知道该找谁。
+例如：
+这个session08589824唯一标识 新柜面渠道接入-08589824，
+这个是拆包的过程						新柜面渠道接入-08589824 [SoapAnalyzer        ] 拆包 @ Request.Ctrl.channelserno.value=2017071204988808
+这个是拆包后匹配的过程			新柜面渠道接入-08589824 [TableDataMapSelector] 匹配结果 = [[xwnpb001, CNT, params, regfly, 85, 005, CNT, 2, cnttonpb, 0, 小企业手机银行客户签约, ], [*, CNT, params, regflw, 01, 005, CNT, 0, cnttohstt, 0, 其他交易, ]]
+这个是拼发afa的head头的过程	新柜面渠道接入-08589824 [MessagePack         ] 报文拼包组件 @ 使用报文'cnttoafa/message/SEND_TO_AFA_HEAD.rcd',拼包变量名'afahead'
+这个是拼发afa的body头的过程	新柜面渠道接入-08589824 [MessagePack         ] 报文拼包组件 @ 使用报文'cnttonpb/message/ylncmd_SEND_TO_AFA_BODY.rcd',拼包变量名'afabody'
+这个是发往afa的过程					新柜面渠道接入-08589824 [JmsSender           ] JMS调用组件,使用消息发送器为:JQ_SEND_TO_AFA[JQ_SEND_TO_AFA],调用服务代码为:ecitoafa
+这个是发送afa成功正常返回		新柜面渠道接入-08589824 [DefaultHandler      ] 应答流程处理器 @ 调用服务端消息返回
+这个是拆afa返回包的过程			新柜面渠道接入-08589824 [MessageUnpack       ] 报文拆包组件 @ 使用报文'cnttoafa/message/RECV_FR_AFA_ALL.rcd',拆包变量名'recv'
+这个交易成功是afa记流水成功	柜面渠道接入-08589824 [NatpAnalyzer        ] NATP拆包 - errorMsg=[交易成功]
+这个是发对应系统拼头的过程	新柜面渠道接入-08589824 [MessagePack         ] 报文拼包组件 @ 使用报文'cnttonpb/message/2SEND_TO_AFA_HEAD.rcd',拼包变量名'send'
+这个是发对应系统NPB的过程		新柜面渠道接入-08589824 [JmsSender           ] JMS调用组件,使用消息发送器为:JQ_SEND_TO_NPB[JQ_SEND_TO_NPB],调用服务代码为:ecitonpb
+这个是发起方的信息					新柜面渠道接入-08589824 [DefaultMessageSender] 发送消息,应用为: base/BOD_CNT_IN/NEW_CNT_IN,发送交易流水号: 08589824
+这个是发送成功的信息				新柜面渠道接入-08589824 [ServerHandler       ] 调用应用:base/BOD_OUTPUT/OUTPUT_NPB,流水号:00055562 一般克隆crt去这个日志路径用这个流水搜索
+这个是接收到对应应答拆包		新柜面渠道接入-08589824 [MessageUnpack       ] 报文拆包组件 @ 使用报文'cnttonpb/message/4RECV_FR_HOST_SOAP.rcd',拆包变量名'send'
+这个是应答的拆包内容				新柜面渠道接入-08589824 [SoapAnalyzer        ] 拆包 @ Response.Body.erortx.value=前置：企业网银通讯异常，请核对该笔业务是否成功
+
+新crt下一个跳转收到请求			行内手机(新)银行接出-00055562 [ServerHandler       ] 创建新交易,请求应用为: base/BOD_CNT_IN/NEW_CNT_IN,请求流水号为:08589824
+新crt发往第三方端口					行内手机(新)银行接出-00055562 [HttpOutAdaptor      ] HTTP接出适配器 @ 远程主机 : 10.10.21.83
+--------------------------------------华丽的分割线-------------------------------------------- 					
+各系统日志路径(搜索渠道流水号即可,日志路径即文件地址在controller后加一个log)
+10178				村镇银行_第三方接入-->标准服务村镇接入						cd /home/eci/controller/log/base/BOC_PART3_IN/STD_IN_TCP/log/	
+10053				村镇银行_第三方接入-->柜面通系统村镇接入					cd /home/eci/controller/log/base/BOC_PART3_IN/PART3_GMTSYS_IN/log/	
+10052				村镇银行_柜面接入-->村镇柜面接入									cd /home/eci/controller/log/base/BOC_CYT_IN/CYT_IN/log/	
+10182				村镇银行_柜面接入-->新村镇柜面接入								cd /home/eci/controller/log/base/BOC_CYT_IN/ABS_IN/log/
+						村镇银行_行内接出-->安全服务平台接出							cd /home/eci/controller/log/base/BOC_OUTPUT/OUTPUT_SAFE/log/						10.10.20.126:10003
+						村镇银行_行内接出-->村镇标准服务接出							cd /home/eci/controller/log/base/BOC_OUTPUT/OUT_STDSERVER/log/					标服没有接出是因为会转到对应的卡、核心、企业等系统
+						村镇银行_行内接出-->村镇核心系统接出							cd /home/eci/controller/log/base/BOC_OUTPUT/OUTPUT_HOST/log/						0.0.0.0:10004	
+						村镇银行_行内接出-->村镇卡系统接出								cd /home/eci/controller/log/base/BOC_OUTPUT/OUTPUT_CARDS/log/						10.10.20.141:20086
+						村镇银行_行内接出-->村镇企业网银系统接出					cd /home/eci/controller/log/base/BOC_OUTPUT/OUTPUT_EBK/log/							10.10.29.18:8003	
+						村镇银行_行内接出-->村镇手机银行系统接出					cd /home/eci/controller/log/base/BOC_OUTPUT/OUTPUT_MBK/log/							10.10.24.187:8002	
+						村镇银行_行内接出-->村镇验印系统接出							cd /home/eci/controller/log/base/BOC_OUTPUT/OUTPUT_SVS/log/							10.10.29.14:10000	
+						村镇银行_行内接出-->村镇业务处理平台接出					cd /home/eci/controller/log/base/BOC_OUTPUT/OUTPUT_AFA/log/							10.10.20.126:10180
+10013			  东莞银行_ATM接入-->ATM渠道STDTCP接入							cd /home/eci/controller/log/base/BOD_ATM_IN/ATM_IN_STDTCP/log/
+						东莞银行_标服接入-->行内标服STDMQ接入							cd /home/eci/controller/log/base/BOD_STD_IN/STD_IN_MQ/log/							10.10.20.126:1502	
+						东莞银行_标服接入-->行内系统公共STD_IN_APIMQ接入	cd /home/eci/controller/log/base/BOD_STD_IN/STD_IN_APIMQ/log/						10.10.20.126:1401
+10009			  东莞银行_标服接入-->行内系统公共STD_IN_APITCP接入	cd /home/eci/controller/log/base/BOD_STD_IN/STD_IN_APITCP/log/		
+						东莞银行_标服接入-->行内系统公共STD_IN_FILEMQ文件	cd /home/eci/controller/log/base/BOD_STD_IN/STD_IN_FILE/log/	       		0.0.0.0:3111
+10113/10115	东莞银行_第三方接出-->安徽省交警罚没系统接出			cd /home/eci/controller/log/base/BOD_PART3_OUT/PART3_ANTAX_OUT/log/  		10.10.20.112:4326
+10164				东莞银行_第三方接出-->备付金系统接出							cd /home/eci/controller/log/base/BOD_PART3_OUT/PART3_BFJ_OUT/log/  
+10129				东莞银行_第三方接出-->财付通系统接出							cd /home/eci/controller/log/base/BOD_PART3_OUT/PART3_CFTOON_OUT/log/ 		131.87.24.3:18081
+10125				东莞银行_第三方接出-->财政非税(多城市)联机系统接出cd /home/eci/controller/log/base/BOD_PART3_OUT/PART3_NEW_NOTAX_OUT/log/	19.168.92.2:7777
+10047				东莞银行_第三方接出-->财政非税接出								cd /home/eci/controller/log/base/BOD_PART3_OUT/PART3_NOTAX_OUT/log/  		19.104.10.56:9999
+10083				东莞银行_第三方接出-->城市学院(一卡通)项目系统接出cd /home/eci/controller/log/base/BOD_PART3_OUT/PART3_CARDSYS_OUT/log/
+10077				东莞银行_第三方接出-->村镇银行短信平台接出				cd /home/eci/controller/log/base/BOD_PART3_OUT/PART3_SENMSG_OUT/log/  	10.10.20.126:10053
+10181/10194	东莞银行_第三方接出-->村镇银行服务接出						cd /home/eci/controller/log/base/BOC_PART3_OUT/PART3_BOC_OUT/log/  			10.10.20.126:10178
+10037				东莞银行_第三方接出-->贷记卡成品卡管理						cd /home/eci/controller/log/base/BOD_PART3_OUT/CARD_MANAGE/log/
+10043				东莞银行_第三方接出-->贷记卡应用系统接出					cd /home/eci/controller/log/base/BOD_PART3_OUT/PART3_DJCARD_OUT/log/  	10.10.5.1:30001
+10069/10071	东莞银行_第三方接出-->第三方存管接出							cd /home/eci/controller/log/base/BOD_PART3_OUT/PART3_CGSYS_OUT/log/  		10.10.20.125:9107 172.18.16.115:20085
+10219				东莞银行_第三方接出-->电信诈骗查控接出						cd /home/eci/controller/log/base/BOD_PART3_OUT/PART3_DXZPCK_OUT/log/  	10.10.24.205:8001
+10079				东莞银行_第三方接出-->东莞财税库行系统接出				cd /home/eci/controller/log/base/BOD_PART3_OUT/PART3_CSKH_OUT/log/  		10.10.10.5:9008
+10161				东莞银行_第三方接出-->东莞财政集中支付系统接出		cd /home/eci/controller/log/base/BOD_PART3_OUT/PART3_DGCZZF_OUT/log/  	finasendip:0
+10143				东莞银行_第三方接出-->广东跨行代收系统接出				cd /home/eci/controller/log/base/BOD_PART3_OUT/PART3_GDKHDS_OUT/log/  	10.10.20.126:10142
+10101				东莞银行_第三方接出-->深圳同城二代系统接出				cd /home/eci/controller/log/base/BOD_PART3_OUT/PART3_SZSF_OUT/log/			10.10.10.99:19024
+10231				东莞银行_第三方接出-->银网通支付系统接出					cd /home/eci/controller/log/base/BOD_PART3_OUT/PART3_SZIPSP_OUT/log/  	10.10.5.212:19024
+10033				东莞银行_第三方接出-->联网身份证核查							cd /home/eci/controller/log/base/BOD_PART3_OUT/PART3_IDCHCK_OUT/log/  	10.10.20.126:19010
+						东莞银行_行内接出-->OA办公系统接出								cd /home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_OA/log/							10.10.20.74:8080
+						东莞银行_行内接出-->安全服务平台接出							cd /home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_SAFE/log/						10.10.20.126:10000
+						东莞银行_行内接出-->村镇服务接出									cd /home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_CZ/log/							10.10.20.126:10194
+						东莞银行_行内接出-->村镇黑名单系统接出						cd /home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_BOCBLS/log/					10.10.29.10:7025
+						东莞银行_行内接出-->村镇企业网银系统接出					cd /home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_EBK/log/							10.10.29.18:8003
+						东莞银行_行内接出-->贷款定价系统接出							cd /home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_CFS/log/							10.10.29.136:7103
+						东莞银行_行内接出-->电子支付平台接出							cd /home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_EPP/log/							10.10.21.42:20010 10.10.21.86:20010/20013
+						东莞银行_行内接出-->风险管理系统接出							cd /home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_GMSS/log/						10.10.20.31:60001/17109 10.10.20.126:1402
+						东莞银行_行内接出-->个贷服务系统接出							cd /home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_PLMS/log/						10.10.31.135:17006
+						东莞银行_行内接出-->个人(新)网银系统接出					cd /home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_NIB/log/							10.10.24.229:8003 10.10.21.68:8003/8004
+						东莞银行_行内接出-->广州存房系统接出							cd /home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_GZCF/log/						10099
+						东莞银行_行内接出-->国际业务系统接出							cd /home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_ITS/log/							10.10.20.79:9123 10.10.22.71:10010
+						东莞银行_行内接出-->黑名单系统接出								cd /home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_BLS/log/							10.10.24.49:7025
+						东莞银行_行内接出-->交易监测系统接出							cd /home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_TSM/log/							10.10.20.209:9001/9988
+						东莞银行_行内接出-->金融IC卡服务接出							cd /home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_ICC/log/							10.10.20.36:8999
+						东莞银行_行内接出-->客户关系管理系统接出					cd /home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_ECIF/log/						10.10.22.99:9500
+						东莞银行_行内接出-->客户信息系统接出							cd /home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_OCIF/log/						10.10.20.28:8822
+						东莞银行_行内接出-->批量业务平台接出							cd /home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_ABOP/log/						10.10.20.127:29080
+						东莞银行_行内接出-->企业(新)网银系统接出					cd /home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_NCBS/log/						10.10.21.62:8003/8002
+						东莞银行_行内接出-->人脸识别系统接出							cd /home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_IBIS/log/						10.10.29.12:8082
+						东莞银行_行内接出-->商业汇票系统接出							cd /home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_ECDS/log/						10.10.20.82:9908
+						东莞银行_行内接出-->申报平台系统接出							cd /home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_SRP/log/							10.10.22.57:10201
+						东莞银行_行内接出-->深圳同城票据接出							cd /home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_YZJ/log/							10.10.20.192:60000
+						东莞银行_行内接出-->无纸化系统接出								cd /home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_NPP/log/							10.10.29.12:7777
+						东莞银行_行内接出-->现金管理系统接出							cd /home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_CMP/log/							10.10.20.98:11010
+						东莞银行_行内接出-->信贷系统平台接出							cd /home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_CMIS/log/						10.10.20.30:9080 10.10.22.34:6002
+						东莞银行_行内接出-->行内TKMS系统接出							cd /home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_TKMS/log/						10.10.24.247:1223
+						东莞银行_行内接出-->行内标准服务接出							cd /home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_STDSERVER/log/				标服没有接出是因为会转到对应的卡、核心、企业等系统
+						东莞银行_行内接出-->行内短信平台接出							cd /home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_SMS/log/							10.10.5.1:8082
+						东莞银行_行内接出-->行内积分系统接出							cd /home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_JFXT/log/						10.10.29.100:3005
+						东莞银行_行内接出-->行内客服系统接出							cd /home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_CSS/log/							10.10.24.39:10000
+						东莞银行_行内接出-->行内手机(新)银行接出					cd /home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_NPB/log/							10.10.21.83:21111
+						东莞银行_行内接出-->行内微信系统接出							cd /home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_WXB/log/							10.10.29.16:8002
+						东莞银行_行内接出-->行内验印系统接出							cd /home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_SVS/log/							10.10.29.14:10000
+						东莞银行_行内接出-->业务处理平台接出							cd /home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_AFA/log/							10.10.24.34:9001
+						东莞银行_行内接出-->业务处理文件接出							cd /home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_FIL/log/							10.10.24.34:9997
+						东莞银行_行内接出-->移动支付多应用管理系统接出		cd /home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_NFC/log/							10.10.31.157:32003
+						东莞银行_行内接出-->支票影像平台接出							cd /home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_CIS/log/							10.10.20.116:60011 10.10.19.73:60000
+						东莞银行_行内接出-->智能排队系统接出							cd /home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_QMS/log/							10.10.20.155:9305
+						东莞银行_行内接出-->中间业务平台接出							cd /home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_MID/log/							10.10.20.125:7001
+						东莞银行_行内接出-->主机核心系统接出							cd /home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_HOST/log/						10.10.29.22:3810 MQ发送队列不同 QL.API.ECI_TO_HOST.REQ QL.API.ECI_TO_HOST_M.REQ QL.API.ECI_TO_HOST_L.REQ QL.API.ECI_TO_HOST_H.REQ
+						东莞银行_行内接出-->综合理财平台接出							cd /home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_FUND/log/						10.10.20.241:9098
+						东莞银行_行内接出-->综合前端系统监听接出					cd /home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_CNT/log/							10.10.24.9:10179
+10011				东莞银行_电银接入-->电银渠道STDTCP接入						cd /home/eci/controller/log/base/BOD_TEL_IN/TEL_IN_STDTCP/log/
+10184				东莞银行_公共应用-->PDF文件生成										cd /home/eci/controller/log/base/BOD_PUBLIC_APP/APP_PDFBUILD/log/
+10044 			东莞银行_柜面接入-->村镇柜面接入--联网身份核查		cd /home/eci/controller/log/base/BOD_CNT_IN/CYT_IN/log/		
+10046 			东莞银行_柜面接入-->柜面渠道接入(老前端)					cd /home/eci/controller/log/base/BOD_CNT_IN/CNT_IN/log/			
+11162 			东莞银行_柜面接入-->新柜面接入										cd /home/eci/controller/log/base/BOD_CNT_IN/ABS_IN/log/		
+10162 			东莞银行_柜面接入-->新柜面渠道接入(新前端)				cd /home/eci/controller/log/base/BOD_CNT_IN/NEW_CNT_IN/log/		
+10012/10112 东莞银行_网银接入-->个人网银手机渠道STDTCP接入		cd /home/eci/controller/log/base/BOD_NET_IN/NET_IN_STDTCP/log/	
+10010			  东莞银行_网银接入-->企业网银渠道STDAPITCP接入			cd /home/eci/controller/log/base/BOD_NET_IN/NET_IN_STDAPITCP/log/	
+10042				东莞银行_网银接入-->网银渠道同步异步应用接入			cd /home/eci/controller/log/base/BOD_NET_IN/NET_IN_REQ/log/	
+10021				东莞银行_行内接入-->管理终端平台接入							cd /home/eci/controller/log/base/BOD_IN/IN_ETELLER/log/
+10174				东莞银行_行内接入-->交易监测系统接入							cd /home/eci/controller/log/base/BOD_IN/IN_TSM/log/	
+10084				东莞银行_行内接入-->客户信息系统接入							cd /home/eci/controller/log/base/BOD_IN/IN_OCIF/log/	
+10045				东莞银行_行内接入-->批量业务平台接入							cd /home/eci/controller/log/base/BOD_IN/IN_ABOP/log/	
+10091				东莞银行_行内接入-->深圳同城票据接入							cd /home/eci/controller/log/base/BOD_IN/IN_YZJ/log/	
+10076				东莞银行_行内接入-->行内核心系统接入							cd /home/eci/controller/log/base/BOD_IN/IN_HOST/log/	
+10019				东莞银行_行内接入-->行内渠道公共接入							cd /home/eci/controller/log/base/BOD_IN/IN_PUB/log/	
+10176				东莞银行_行内接入-->行内验印系统接入							cd /home/eci/controller/log/base/BOD_IN/IN_SVS/log/	
+10020				东莞银行_行内接入-->业务处理平台接入							cd /home/eci/controller/log/base/BOD_IN/IN_AFA/log/	
+10074				东莞银行_行内接入-->支票影像平台接入							cd /home/eci/controller/log/base/BOD_IN/IN_CIS/log/	
+10148				东莞银行_行内接入-->智能排队系统接入							cd /home/eci/controller/log/base/BOD_IN/IN_QMS/log/	
+10018				东莞银行_行内接入-->中间业务平台接入							cd /home/eci/controller/log/base/BOD_IN/IN_MID/log/	
+10097				东莞银行_银联前置接入-->银联前置STDTCP接入				cd /home/eci/controller/log/base/BOD_UPS_IN/UPS_IN_STDTCP/log/	
+10175				东莞银行_银联前置接入-->银联前置STDTCP接入XML			cd /home/eci/controller/log/base/BOD_UPS_IN/UPS_IN_STDTCP_XML/log/	
+10014				东莞银行_自助接入-->自助渠道FIX接入								cd /home/eci/controller/log/base/BOD_SFS_IN/SFS_IN_FIX/log/	
+10041																													cd /home/eci/controller/log/base/BOD_PART3_OUT/PART3_IBPSV2_OUT/log/	
+8889				风险交易事件管理系统-->电信诈骗风险交易事件管理		cd /home/eci/controller/log/base/JZCK/JZCK_DXZP/log/	
+如果没有找到,可以登陆10.10.10.10后使用命令搜索指定端口, grep -l 10020 /home/eci/controller/base/*/*/plan.pml  搜到的结果:/home/eci/controller/base/BOD_IN/IN_AFA/plan.pml
+--------------------------------------华丽的分割线--------------------------------------------
+必备技能：项目部署服务器 (测试环境一般都是通过94代理中转,测试环境和预投产环境只有查询权限的query用户,密码是query或者abcd1234或者abcd+123)
+开发环境 
+	前端ABS： 10.10.10.77	 abs/abs 连接后vlog命令回车,输入柜员号 IDE配置 sftp方式 port:22 日志 /home/abs/abs_main/workspace/  tzz/88888888-12345678
+	前置AFA： 10.10.5.241(中间业务) 
+						10.10.5.242(定时任务) afa/afa+123 连接后cd log,在cd xx进入对应交易目录,log命令查看最新一笔交易日志 IDE配置 ftp port:21 /home/afa/workspace/PyTrade/  /home/afa/workspace_zf/PyTrade/ 日志 /home/afa/log/dsdfcm_G02/130112
+						10.10.10.33/249(给开发人员测试使用) 
+	前置ECI： 10.10.10.10(主) 				eci/eci+123 主ECI处理大部分交易,
+						10.10.10.15(发第三方的)	eci/eci+123 副ECI主要处理发第三方的业务 IDE配置 ftp port:21 /home/afa/workspace/PyTrade/  /home/afa/workspace_zf/PyTrade/ 日志 /home/afa/log/dsdfcm_G02/130112
+	前端ABS： 10.10.24.9/37 (abs) 
+						10.10.31.81(无纸化)
+	前置AFA：	10.10.24.34(行内afa1) 
+						10.10.24.35(行内afa2) 		
+						10.10.24.36(afa定时任务)
+						10.10.31.151(AFA4J中间业务)
+						10.10.31.151(AFA4J定时任务)
+	前置ECI： 10.10.20.126(外围eci) 
+						10.10.24.31/32(渠道接入) 
+						10.10.24.33(柜面接入)
+预投产环境
+	前端ABS:  10.10.23.36/40
+	前置SER:
+	10.10.20.230 行内afa（没定时任务）行内eci
+	10.10.20.231 行内afa (有定时任务）行内eci
+	10.10.23.120 行内afa 定时任务
+	10.10.20.221 行外eci (外围)
+	10.10.20.125 预投产村镇eci 
+	10.10.20.229 abop、eteller
+预投产环境行内ECI和AFA都有两台机器,以后的日志都要注意两台机找。村镇的比对版本时候参考：170113-001关于村镇银行电子渠道增加日累计笔数与日累计限额、年累计限额的需求		  
+
+前置对外ftp
+开发：10.10.10.249 22 pubsftp/pubsftp 10.10.10.10 22 pubsftp/pubsftp
+测试：10.10.24.35 22pubsftp/123456
+预投产：10.10.20.230 22 ftppub/123456
+--------------------------------------华丽的分割线--------------------------------------------
+必备技能：数据库(PLSQL配置地址)
+abs					abs/abs@10.10.10.122:8700/crew 							村镇银行 前端	开发环境
+abs					abs/abs1234@10.10.10.151:1521/kf11g 				东莞银行 前端 开发环境 	abs/abs1234	20170626切换 原 abs/abs1234@10.10.10.3:1521/vend3 
+qzafa				maps/1234+qwer@10.10.10.3:1521/vend3 	  		东莞银行 前置 开发环境
+
+abs					query/query@10.10.20.27:1521/cs11gapp				测试环境126_村镇综合前端	query/query@10.10.20.1:1521/ofsa
+abs					query/query@10.10.31.139:1521/cs11g02app		测试环境126_东莞银行综合前端	query/query 20170725切换 原 query/query@10.10.20.166:8700/bifs  query/query@10.10.10.94:28700/bifs
+qzafa				query/query@10.10.20.4:1521/bifs						测试环境126_综合前置_afa
+eteller			query/query@10.10.20.4:1521/bifs						测试环境126_综合前置_eteller
+eteller176	query/query@10.10.29.100:8900/cbapp					测试环境176_综合前置_eteller
+qzafa176		query/query@10.10.29.100:8900/cbapp					测试环境176_综合前置_afa
+qzafa				query/query@10.10.31.135:1521/csbusapp			测试环境186_综合前置_afa
+eteller			query/query@10.10.31.135:1521/csbusapp			测试环境186_综合前置_eteller
+qzafa				query/query@10.10.29.100:8900/cbapp					测试环境194_综合前置_afa
+eteller			query/query@10.10.29.100:8900/cbapp					测试环境194_综合前置_eteller
+
+abs					query/query@10.10.23.125:1521/tc11g01app		预投产环境_村镇综合前端	query/query@10.10.23.1:1521/touchan
+abs					query/query@10.10.23.125:1521/tc11g01app		预投产环境_东莞银行综合前端
+eteller			query/query@10.10.23.127:1521/tc02					预投产环境_综合前置_eteller	qzafa/abcd1234 eteller/abcd1234	query/query 20170531由原来的23.1换成 23.127 query/query@10.10.23.1:1521/touchan query用户还是query
+qzafa				query/query@10.10.23.127:1521/tc02					预投产环境_综合前置_afa
+--------------------------------------华丽的分割线--------------------------------------------	
+必备技能：东莞银行必备开发工具下载(ftp和飞秋共享目录都是一样的文件，如果ftp无法下载可以换飞秋下载,用户名密码都是agree)  
+FTP目录:ftp://10.10.12.11/Tools_DG/ 
+1_LTTS_KFCS.rar东莞银行老前端开发测试环境 1_LTTS_KFCSCZ.rar村镇银行老前端开发测试环境  
+2_ABC_KF.rar东莞银行新前端开发环境 2_ABC_CS.rar东莞银行新前端测试环境 
+2_ABC_KFCZ.rar村镇银行新前端开发环境 2_ABC_CSCZ.rar村镇银行新前端测试环境 
+3_ABIDE_bod.rar东莞银行新前端开发IDE 3_ABIDE_CZ.rar村镇银行新前端开发IDE
+4_AFAIDE_3.0.rar东莞银行前置开发IDE 6_eclipse_python_ftp.rar东莞银行前置开发python发模拟通讯IDE
+5_10eci.rar东莞银行开发环境主ECI 5_15eci.zip东莞银行开发环境第三方ECI
+ABIDE和AFAIDE的配置参考ftp://10.10.12.11/DOC/TEST_TY/Doc_TY/config/ 目录下:AB配置.bmp AFA配置.bmp afa区分workspace(中间业务上传到这个路径)和workspace_zf(支付系统上传到这个路径)
+
+FTP目录:ftp://10.10.12.11/Tools_KF/ 
+BCompare-zh.rar版本比对工具 FlashFXP.rarFTP工具 PLSQL_8.0.rar数据库可视化工具 SecureCRT.rar日志查看工具 UltraEdit/UltraEdit_V23_0_0_59.exe文本编辑工具
+关于新版UE激活的问题：1、点击左上角ue图标,最下边选择：输入许可证秘钥 2、id和密码随便输入数字会激活失败,然后选择脱机激活 3、获取用户码1和用户码2,发给天意,找他获取验证码1和验证码2 4、点击激活即可
+UE重置 删除uedit32.ini,然后重启即可 C:\Users\Administrator\AppData\Roaming\IDMComp\UltraEdit
+
+FTP目录:ftp://10.10.12.11/DOC/TEST_TY/Doc_TY/config/
+tnsnames.ora数据库配置文件,建议在plsql左上角钥匙处配置-固定用户：格式:query/query@10.10.31.139:1521/cs11g02app
+BOD_账号信息.txt东莞银行常用账号信息 BOD_柜员信息.txt东莞银行常用柜员信息 BOC_柜员账号.txt村镇银行常用柜员信息
+feiqiu_config.txt飞秋全网段好友导入
+0_开发初始化柜员密码.sql开发环境柜面密码重置
+----------------------------------------------------------------------------------
+必备技能：求助专业人员
+行方领导										陈日东、陆伟杭
+业务问题                    袁振成、卢斯坚、吴仲仪(前端翻写需求的行方项目经理是仪哥，业务测试人员是坚哥和成哥，碰到业务相关问题一般找成哥确认，业务方面不懂的找坚哥)
+核心系统                    刘娘送sonylau、樊海、刘勇(长亮)
+国结相关                    赵玥、张健嫦、游魁良
+房维系统										解杰
+票据系统/ocif		            邓云亮 票据和ocif的联调问题
+IC卡系统                		李国聪cnttoicc
+企业网银(新)NPB/NCB         RTX找易诚互动公司的人 雷晨杰、杜明鸿、罗永钱 手机银行 要问下严达鑫
+营销商机                    RTX找宇信易诚公司的人 王楚岳  营销商机客户号 
+前置开发                    梁继雄(需求相关)、李梓华(实施相关)、刘杰(整个中间业务系统：柜员、参数、非税)、张志杰(查控、司法、贷记卡、交警)、许心良(查控、司法、理财)
+仿真环境、黄金系统          罗治华(之前仿真是黄正为目前已撤离)
+数据库挂了                  吴振伟
+配置组                      曾令满、陈迪、刘伟男(测试、预投产改数找他们)
+MM999777-发送后台处理失败 	中间件问题 陆伟杭 
+调用数据库失败,请稍后再试   陈日东
+----------------------------------------------------------------------------------------------
+必备技能：常用网址
+资料软件ftp					ftp://10.10.12.11  agree/agree 建议使用windows文件管理器打开,DOC目录存放文档资料，SOFT目录存放一些软件，Tools_DG存放东莞银行用到的开发工具，其他的自己有空可以研究 
+QC地址							http://10.10.22.90:8080/qcbin/start_a.jsp           
+ALM网址							http://10.10.22.90:8080/qcbin/start_a.jsp           
+软件中心						http://10.10.22.250:8833/sddownload.aspx            
+信贷系统						http://10.10.10.113:8001/cmis                       资产业务 01045  无密码		客户号  5000001583	提交到东莞分行审批  5001620856 
+村镇内管系统				http://10.10.23.3:8081/views/login.html             村镇内管系统-预投产环境00999/1q2w3e4r
+东莞银行客服系统		http://10.10.19.54:8080/system.do?frameworkActionId=systemInitialize  25053 不用；密码
+自动更新平台				http://10.10.24.65:8080/autodeploy/                   --需求是否投产可在自动更新平台此处查看到 梁继雄/ljx+123 李梓华
+综合理财平台				http://10.10.20.227:8880/ifmcounter/      
+综合理财平台				http://10.10.10.223:8880/ifmcounter/                        
+网银开发仿真				http://10.10.5.232:8088/payment/login.do?method=login&userName=chenjie
+网银测试仿真				http://10.10.20.112:8088/payment/login.do?method=login&userName=chenjie
+网银预投产仿真			http://10.10.23.118:8088/payment/login.do?method=login&userName=chenjie
+二代大小额开发仿真	http://10.10.10.130:7080/SIMUFlex/SIMUFlex.html  
+二代大小额测试仿真	http://10.10.20.95:7080/SIMUFlex/SIMUFlex.html
+二代大小额预投产仿真http://10.10.23.117:7080/SIMUFlex/SIMUFlex.html
+统一管理平台(开发)	http://10.10.10.107:8080/abop.awt/index/Index.html  77322 77100 77110  888888 21087 77100应该是可以的
+统一管理平台(测试)	http://10.10.20.127:8080/abop.awt/index/Index.html  
+工作量评估					svn://10.10.10.32/ver_afa/东莞银行/项目信息/工作量评估.xlsx 
+赞同AB   						svn://10.10.10.32/ver_ab/app		user/pwd:tzz
+赞同AFA  						svn://10.10.10.32/ver_afa 			user/pwd:tzz
+赞同DOC  						svn://10.10.10.32/ver_doc			  user/pwd:tzz /wd系统文档 以后所有系统最新的文档都统一放到这个目录下面, 文档都统一管理
+系统文档 						svn://10.10.10.32/ver_doc/wd系统文档 外系统文档,设计文档请统一放在这里路径下。请知悉
+测试准入说明				svn://10.10.10.32/ver_doc/wd系统文档/东莞银行系统测试准入 测试准入说明：
+村镇柜员/账号svn		https://10.10.12.11/svn/SVN_TY/Doc_TY/config/BOC_柜员账号.txt 00111006 00111025 00111054 00611017 888888		00177012 000000
+数据库配置文件svn   https://10.10.12.11/svn/SVN_TY/Doc_TY/config/tnsnames.ora
+设置了共享					http://10.10.12.8     密码agree+123,要什么安装包自己下
+测试机IP						10.10.30.201                                        
+安全平台核心中间件	/home/tuxedo/proxy/shell/SAFESERVER.sh	/home/tuxedo/proxy/shell/CYTSAFESER.sh	/home/tuxedo/proxy/shell/CYTHOSTSER.sh （tuxedo/tuxedo）
+柜员账号密码				常用77100 888888/a8888888
+初始化柜员密码svn		https://10.10.12.11/svn/SVN_TY/Doc_TY/config/0_开发初始化柜员密码.sql
+前置路由文件svn			https://10.10.12.11/svn/SVN_TY/Doc_TY/config/route.rt
+前置上线文档示范		http://10.10.22.11/svn/bifs/项目代码/agree/source/160728-002银网通业务需求说明书
+
+行方需求*******			http://10.10.22.11/svn/bifs/项目代码/agree/source  		liangjx/liangjx970
+行方上线提交文档		http://10.10.22.11/svn/ltts_2012/commit 							liangjx/liangjx970
+前置重要文档***			http://10.10.22.11/svn/bifs/项目代码/agree/文档 			liangjx/liangjx970
+前置afa生产版本			http://10.10.22.11/svn/bifs/投产版本/AFA 							liangjx/liangjx970
+
+sftp到24.35 				sftp pubsftp@10.10.24.35 pubsftp/123456	
+ftp到20.126 				ftp xuni@10.10.20.126 5555 xuni/123456	 
+行方SVN账号密码			许德琪xudq/agree tzz/lwc/djl 22222222
+许德琪的电脑密码		Abcd+1234		谭张祯的电脑密码是0000 （施俞的一样） rtx默认密码一个点 
+wifi用户名密码 			隐藏ssid TP_CCMS 1z2x3c4v5b
+10eciroot密码 			abcd+1234 
+rtx默认密码					abcd+1234/abcd1234
+oracle查询锁表信息 	select * from gv$locked_object l, dba_objects o, gv$session s where l.OBJECT_ID=o.object_id and l.SESSION_ID=s.sid; 
+--------------------------------------华丽的分割线--------------------------------------------	
+前端前置更新测试流程：
+前端前置更新测试基本方式一致,都需要在行内11svn下边建提交文档,命名格式：需求号.sql,之后对照节点填写对应的更新数据,
+
+1.提交程序到以下行方SVN
+前端:http://10.10.22.11/svn/agreefront/23_源代码/测试库/abs_main/ 
+前置:http://10.10.22.11/svn/bifs/项目代码/agree/source/需求文件夹/(例如:170522-005超级结算平台业务需求说明书) liangjx/liangjx970 前置因为一般情况下版本更新的文件较多,所以单独有自己的提交文件路径,包含afa、eci、dml、dfl等
+
+2.以需求号xxxxxx-xxxXXXXX.sql名称在下面SVN：http://10.10.22.11/svn/ltts_2012/commit/ 中建一个文件
+例如：http://10.10.22.11/svn/ltts_2012/commit/170522-005超级结算平台业务需求说明书.sql
+
+3.内容参考以下内容相应修改：
+
+<bifs> --前置更新文档,一定要放到bifs的节点里面,前置单独有自己的文件夹,一般放到上边
+<prop appname=bifs;>
+http://10.10.22.11/svn/bifs/项目代码/agree/source/170522-005超级结算平台业务需求说明书
+</bifs>
+
+<dfl>--这里定义表结构变化,新增表、修改表alter table  .. add ..  varchar2(1) ;
+<prop appname=abs;dbuser=abs;>--前端abs
+<prop appname=dcb;dbuser=cbmain;>--核心cbmain
+<prop appname=bifs;dbuser=qzafa;>--前置afa 前置的单独放到前置的清单中提交,此处是为了汇总节点
+<prop appname=bifs;dbuser=eteller;>--前置eteller 前置的单独放到前置的清单中提交,此处是为了汇总节点
+</dfl>
+
+<dml>--这里定义表数据的变化,表中增加数据
+<prop appname=abs;dbuser=abs;>
+insert into ab_timetask (PROJECTNO, PROJECTNAME, PROJECTTYPE, TIMERMODEL, TIMERSTATUS, CMONTH, CDAY, CEXDAY, CHOUR, CENDHOUR, CMINUTE, LASTRUNDATE, LASTRUNTIME, NEXTRUNDATE, NEXTRUNTIME, RUNCLASSNAME, RUNMETHODNAME, RUNPARAMES, RUNTIME, PROJECTSTATUS)values ('00004', '上传冠字号文件到ECI', '1', '3', '1', '', '', '', '', '', '1', '0', '0', '0', '0', 'lib.timeTaskList.general.uploadFileToECI', 'uploadFileScan', 'dirPath=qfj/C2S/,delFile=true,moveDirPath=qfj/S2C/,dirPathECI=120/upfile', '9', '1');
+</dml>
+
+<abs> --综合前端程序
+<prop appname=abs;basepath=agreefront/23_源代码/测试库;>--basepath 取程序路径中abs_main的前一段
+agreefront/23_源代码/测试库/abs_main/update/plugins/cn.com.agree.ab.custom.qfj_1.0.0.v201511191749.jar
+agreefront/23_源代码/测试库/abs_main/plugins/org.apache.commons.net_3.3.0.jar
+agreefront/23_源代码/测试库/abs_main/workspace/bod/classes/lib/util/FileTransfer.java
+agreefront/23_源代码/测试库/abs_main/workspace/bod/classes/lib/util/FileTransfer.class
+agreefront/23_源代码/测试库/abs_main/workspace/bod/classes/trade/nbgl/gzhm/gzhmQuery/gzhmQuery.java
+agreefront/23_源代码/测试库/abs_main/workspace/bod/classes/trade/nbgl/gzhm/gzhmQuery/gzhmQuery.class
+agreefront/23_源代码/测试库/abs_main/workspace/bod/classes/trade/nbgl/gzhm/gzhmQuery/gzhmQuery.abf
+agreefront/23_源代码/测试库/abs_main/workspace/bod/dsr/f/gdkhdsbat01.fmt 
+</abs>
+
+<oth>
+---修改配置文件
+abs_main\configuration\abs.properties
+--abs.properties里增加的内容(一行)--------------begin----------------------------
+cn.com.agree.ab.custom.cb.server/shareDirECI = /home/afa/data/
+--abs.properties里增加的内容--------------------end------------------------------
+---修改配置文件
+abs_main/configuration/server.properties
+--新增（2行）    IP：端口：超时：权重：FTP用户名：密码密文,内容请按实际填写
+--server.properties里增加的内容--------------begin----------------------------
+[ABS_TO_ECIFILE_FTP]
+service1 = 10.10.10.32:21:60:5:afa:#B9BE992DD036B277
+--server.properties里增加的内容--------------end------------------------------
+</oth>
+
+4.通知有权限的人员更新测试，前端找顺哥(陈永顺)，前置找华哥(李梓华)
+说明：配置组会按COMMIT文件的清单到SVN中取版本更新到测试环境。
+前端更新测试后有菜单、下拉框变化的需要运行下这个sh文件重新加载下 sh /home/abs/abs_main/shell/loadmem.sh
+
+注意事项：
+1.tree组件不要使用“可复选”这个功能,目前有个BUG,在set时如果为空会出现交易中断
+更新测试datamap的svn地址 	http://10.10.22.11/svn/bifs/项目代码/agree/source/源文件自动更新 用户名 liangjx 密码 liangjx970
+--------------------------------------华丽的分割线--------------------------------------------	
+前置提交文档目录结构
+1、commit提交文档中这样子写：
+bifs> --前置更新文档,一定要放到bifs的节点里面,前置单独有自己的文件夹,一般放到上边
+<prop appname=bifs;>
+http://10.10.22.11/svn/bifs/项目代码/agree/source/170522-005超级结算平台业务需求说明书
+</bifs>
+2、必须的文件：
+170522-005上线评审文档.docx  最终上线的评审文档，由开发人员写，行方项目经理审阅
+170522-005上线清单和步骤.doc 上线的清单和步骤，具体内容是以下部分，由开发人员写，配置组的去执行 
+3、需求新增/改动的文件清单：
+afa_170522-005.txt  afa交易清单，分支付系统(workspace_zf)和中间业务(workspace)，PyTrade(交易)和PyLib(库、公共/私有方法)
+dfl_170522-005.sql  建表sql
+dml_170522-005.sql	插入新的数据支持当前需求的交易
+eci_170522-005.txt  eci接口清单
+NEW_CNT_IN_datamap.txt 新前端发前置柜面配置清单(前端通讯码匹配前置交易工作组以及对应交易)
+--------------------------------------华丽的分割线--------------------------------------------
+前端前置交互问题归纳及解决方案：
+ltts挂菜单:
+首先登陆新前端,然后去77服务器/home/abs/abs_main/log/teller/日期/机构号 然后view anonymous.log
+shift+g倒着看日志,找到柜员号 柜员号G_TELLERNO,01100,对应有个菜单编码G_DUTYTP,100001 
+去ltts下bin目录下找到对应的菜单menu100001.txt和menu100001_cfg.txt
+把menu999999.txt和menu999999_cfg.txt的内容分别对应的复制到刚才找到的对应文件中重启ltts即可。
+编译xml文件：E:\dg\ltts\bin\only_udall.bat
+也可以select t.tellerno,t.DUTYTPNO,t.* from afa_entduty t where tellerno = '77310'
+616 柜员信息查询 617 钱箱查询 62 交易综合查询	67 内部账户查询	111 账户交易明细查询 6134 钱箱凭证查询
+
+AB前端挂菜单
+柜员查岗位号:select t.DUTYTPNO,t.* from afa_entduty t where tellerno = '12015'
+维护提交:77213 77212 
+菜单复核:01178 88247
+
+AB数据库挂全菜单
+insert into ab_dutytradecode (select 'dutyno', t.tradecode,1,1,'','','' from ab_menuinfo t where t.tradecode is not null )
+./home/abs/abs_main/shell/loadmem.sh -a
+
+修改/重置密码：
+柜员密码解锁、密码重置:openwin("USPWUP") 输入柜员号,证件号码后8位即为重置后的初始密码,重新登陆需要修改密码,建议统一修改为a+7个8:a8888888 (重置密码需柜员不在线,可在ltts顶掉在线柜员后签退后重置)
+重置行员密码	实际调用uspwre openwin("USPWUP") 02255209 68E5DCA164F52ECA
+行员密码修改	        002007 openwin("USPWCG") 02255209 a8888888-522ADF46AF646BBA
+行员注册系统密码重置  002001 openwin("USPWRE") 02255209 68E5DCA164F52ECA 888888
+使用plsql重置柜员密码 https://10.10.12.11/svn/SVN_TY/Doc_TY/config/0_开发初始化柜员密码.sql 这是svn地址,请使用svn检出
+随便用哪个柜员都可以修改别人的,但是要修改的柜员不能在线,重置密码功能支持修改为默认密码6个8或者更改为6位以上数字
+ltts只能修改密码为8位数字+字母,新前端测试路径test.ty.Ty支持修改为6位纯数字密码,一般的报错都是柜员在线或者该柜员的密码信息在密码表中没有
+
+通讯超时可能的原因：
+1、MQ队列：开发、测试、预投产共用MQ队列,如果MQ未启动或者MQ队列中阻塞都有可能导致通讯超时,一般每天由配置组的人启动。
+2、前置工作组：前置交易对应的afa工作组与eci第三方接出服务未部署,需要人工核对端口使用afacsl、ECIIDE启动即可。
+3、发第三方或核心：第三方应答超时、对手行应答超时,核心应答超时,上送数据有问题等都有可能导致通讯异常。
+4、有时eci和前端也会因为网络原因超时,主要是因为前端或前置服务器在跑批,进程阻塞。
+
+各种超时的具体含义：
+超时失败在ECI转发核心前报超时（当成是核心处理失败）
+--这个是在前置配置eci流程吧,通讯先走eci流程,然后才到afa交易,此处超时afa和核心都应该是失败
+而超时成功在ECI返回前端前报超时（当成是核心处理成功）
+--这个是在核心配置的吧,核心成功,前置失败。
+举例,次日转账超时验证
+止付超时：核心成功,前置失败,上核心查询流水 查到后处理为 afastatus = "AF06"; 如果核心返回errorCode=="HOST1002"则前置更状态为afastatus = "AF00"; 前置自动解止付,前置状态AF10-失败,主机状态6-冲正成功。其他情况则：ECI与主机通讯异常,还原超时状态,下一轮继续处理;((mptrcd=="108") && (prcscd=="mptrfe")) 定长通讯组件发核心,不接收核心应答,直接拼包返回结果给afa
+止付超时：核心失败,前置失败,前置不发核心,前置直接回渠道COM9998,前置状态AF00-作废。((mptrcd=="108") && (prcscd=="mptrfe")) 不发送给核心,直接拼包返回结果给afa
+套账超时：核心成功,前置失败,账务正常处理,最终状态AF11-成功。定长通讯组件发核心,不接收核心应答,直接拼包返回结果给afa
+套账超时：核心失败,前置失败,前置不发核心,前置自动解止付,前置状态AF10-失败,主机状态6-冲正成功。不发送给核心,直接拼包返回结果给afa
+
+通讯报不支持的处理码的处理方案：
+同样的交易先在ltts跑一下,如果ltts也是不支持的处理码,碰到这样的问题先找顺哥确认下这个通讯对应的交易是否要翻写。
+因为ltts都不支持的处理码有可能是该交易已经作废,不需要翻写了。如果ltts能发通新前端发不通就把通讯码发给我由我来处理，这个主要是在前置的datamap文件中增加下配置。
+通讯码是6位像qrenvl等,使用小工具检索为null的,或者在我之前发的datamap文件中没有,则这个通讯一般都是发核心的,报不支持的处理码或者查询无数据时候找核心的开发人员。
+
+接口单个字段后台返回多次为列表形式的处理方案：
+例如 qrbkif_zf2 <channelserno>2016092905935056</channelserno>字段<versionid>出现两次  前端拆解map报错。
+造成这类问题的原因：1、多个前端交易调用做分支判断用,2、历史遗留问题,开发人员配重复了。
+首先前端开发人员对比一下ltts界面效果,核对下在xml中是这个字段的几个值是否有不同作用,比如第一个用于判断,第二个才是实际取值。  
+一般情况下ltts都会默认取最后一个值,开发人员可以直接按ltts效果处理,再拆解一次取最后一个值即可,不懂的多去请教老司机。
+碰到不确定的也可以发给前置核对下,一般情况下可以删除eci交易接口的第一个重复字段,对于不能删除的也会告诉开发人员该去取哪一个。
+删与不删的问题：如果返回多个,并且字段名相同的,确定只用第二个的可以删第一个。例如：ibps0018接口单条数据的reqremark等5个字段可以删掉第一个。
+ibps0018接口循环中删除第一个afastatus字段。ibps0017接口中的status字段就不能删除,因为第一个是实际值,第二个是展示值。
+
+chcktp不能为空	原因：__REQ__["_tradeadm_note1"]这个字段为空,/*tradeadm查note1*/select t.rowid,t.* from afa_tradeadm t  where transcode='300005'//前置交易码
+
+BODHST1105、卡、账务类交易、通讯码是6位字母(qracct等)、名称中包含HST的、cnttohst的、报错内容中带有主机的、cmd9999等一般是核心报错，具体校验规则如何前置也不清楚，如果要查原因或者特殊处理，建议找核心的开发人员。
+前置是一个渠道整合的系统，这类交易一般都是穿透前置上核心，前置只会记流水，不做处理，报错都是核心报的,建议去找核心对应的开发人员，cmd9999一般是中间件或者核心报的，
+BODAFA1105、报错内容COMM/QZ开头的、名称中包含AFA的、cnttoafa、的是发前置的接口。
+
+
+核心前置数据不同步，银信通查询接口和个人客户签约情况查询 查到的数据不同步：
+--BODAFA0048 查询客户签约（银信通） dsdfcm 884004 ifms0002 20170809238527 查到5条
+select  USERNO,cactname,cactmobile,acctname  from qzafa.afa_dsdfsigninfo where sysid='44' and acctrl='100000006774552' and status='0' and unitno='00000000' and subunitno='00000000' order by custregno DESC
+--个人客户签约情况查询（BODAFA1073）dsdfcm 881003 sectsig 20170809238515 查到0条 ['sysid', '96'] 查询条件CCCC_CONDITON.append(["CUSTNO",request["TempCustno"]]);
+select COUNT(1) SYSIDNUM  from qzafa.AFA_DSDFSIGNINFO   where SYSID IN ('44') and STATUS IN ('0','3','5') and CUSTNO='1029422966' and USERNO='88888888888'
+88888888这种数据属于生产数据导入开发测试，必须经过敏感数据处理，导致查不到是很正常的，核心前置数据不同步，所以会有这种情况，建议重新做数据，签约银信通，就不会有问题了，历史存量数据套路有点深啊
+我不明白这个为什么这样子写，查银信通的是没有加手机号信息去查，而这个交易加了，所以查询结果不一样
+
+
+原主机流水不存在非原录入柜员对应的主机流水,解决方案：datamap 修改流程goudui为regflw,原来的是goudui交易会修改原流水,新的regflw只是记个流水,不更新。
+ECI会拼一个opFlag标识为1,走前置的第六个流程(这个不重要),会去取后台日期流水,为空的时候会去取勾兑的第0、1作为后台日期流水,这个到核心或者前置校验不过就会报错。
+新前端这个勾兑上送的顺序是有要求的,凡是涉及账务相关的,勾兑第一个字段必须是后台日期,第二个字段必须是后台流水,剩下的没要求,这个下次上送的时候注意下就行。
+
+操作柜员<%s>不在线,不能进行该操作
+ECI的公共流程增加字段ISABS 取值"ABS" NATP变量名ISABS 参考:cnttoafa-->SEND_TO_AFA_HEAD,原因是先去查柜员信息AFA_TELLERINFO,取loginstatus,校验有误
+
+为什么每次都要前端提供通讯码：
+前置这边获取交易日志,再获取交易sql,查询到历史数据,其本质是根据前端的prcscd来匹配的,所以需要提供前端通讯码prcscd。这个也可以由前置做一笔交易自己去获取通讯码然后取的sql,但是整个流程需要时间,为了协同开发,提高效率,建议由前端提供通讯码,前置这边获取前置日志,找到对应sql去数据库查询数据。这一流程没有明确说要前端和前置谁去做,谁时间充裕谁做。同时为了提高效率,我已经提供了一个小工具方便快速获取前置日志取得sql,前端的部分大兄弟已经投入使用了,您找谁都可以处理这个问题的,您找我我当然责无旁贷了,需要前端提供下通讯码只是为了提高效率,要是前端大兄弟们都忙,您不急的话就等多一会儿,我自己去做一遍交易获取也可以。
+
+超时处理：
+一般一个系统一个超时处理,各个系统的超时处理方式是不一样的,你现在看到的所谓的统一超时处理,其实只是一个外壳,本质还是调用前置的原超时处理交易进行处理
+超时处理的基本实现思路就是重发原交易,先上对应系统拿前置流水核实原交易在对应系统是否成功,成功则返回前端超时处理成功,失败则从发该交易到对应系统。
+对于前端翻写的交易,账务类或信息类有勾兑的都不需要前置来改造进行统一超时处理,前端后续配置交易的类型为sign就可以了。
+
+该流水未在前置登记 统一超时处理报错,前置流水不存在的问题：
+之前成哥有说过这类交易的一般处理方案是：之前系统有超时处理的就找对应的交易做超时处理,没有的就改为人工核实。只是查询及打印的不用配人工核实,为查询类交易,如查询交易带有维护的交易就要配为人工核实。不确定的先找成哥确认这个通讯是否要改成人工核实,如果成哥说不改人工核实,需要前置改造,在这个清单中登记,这块由华哥负责,登记后晚点华哥会统一改造。
+https://10.10.12.11/svn/PaySystem/各支付系统超时处理需改造的交易清单.xlsx  开发人员的用户名密码都是kf 测试人样的用户名密码都是test
+对应前置交易203005 AFA_PUBTRANSDTL表没有查到数据,__RSP__["tradestatus"] =  "0" #交易状态 1成功 0失败 报错的话前置会返回一个tradestatus,
+sysid=="01" or transcode in ["884502", "884505"]) or (__REQ__.get("ISABS","") == "ABS" and (sysid in ["37","50","53","64"])
+
+梁珊珊-李毅 报错该流水未在前置登记,税务局规定不能手写要打印的信息,要纳入统一超时处理,省、市ETS的签约及解约要改为超时处理,因要打印签解约信息
+01837	签约预储划缴扣款签约eft00079
+01838	签约预储划缴扣款解约eft00081
+
+发送财政局通讯异常，441930：
+东莞银行_第三方接出-->东莞财政集中支付系统接出-->sendrecv，修改流程|| (finacode == "441930")
+
+00838交易综合查询,金额显示*** 的问题,陈杰 刚才发现,应该是卡的问题,做其他交易,用那磁条卡,也出现了显示不出金额的问题,先放着了
+批量缴款：pay_paylist    批量退款：ext_reflist		
+部分交易后台流水界面不显示的问题：
+这个是不同平台处理机制不一致造成的,基于有效字段设计原理,前置当时在开发这类交易时候是：打印需要的字段才返回,打印不需要的就没必要返回了。
+ltts的勾兑之前好像是由前置负责的,界面的这个后台流水号是单独去查勾兑信息获取的,而新前端把勾兑这块自己做了,前置这边不管了,
+所以就没有这个字段返回了,如果要改造,前置这边挺多交易都需要修改,之前有和成哥说过这个问题,最终的结果是：既然不影响打印,那么显不显示就先不管了。
+
+部分交易超时处理失败实际却交易成功,查不到核心流水号
+
+前端上送文件eci报路径文件不存在问题：使用gz打包,上传打包后的文件,文件名不要带gz
+
+报更新数据库记录为零:
+用AB的界面录入,勾兑信息只登记新前端。用ltts的修改,会报更新数据库记录为零。
+录入和修改要么都在ltts做,要么都在新柜面做,不同平台有些要素不一样,有可能报更新数据库记录为零。
+
+复核之后数据几分钟后就不见了,导致无法冲正  结算业务,东莞财税库横向联网系统,这部分交易做了录入复核之后数据几分钟后就不见了,导致无法冲正
+要冲的就做大金额的数据,个人户30万以上,对公户100万以上。复核完不会发送,可以慢慢的去做冲正,复核完就发送到结算中心,没得冲正的,扣了客户钱又自动冲,还做这个交易干嘛
+
+前置ECI快速定位通讯码prcscd出入口,查看上送和返回字段,用于排查交易各种疑难杂症
+crt或者ftp工具打开新前端所在交易路径/home/eci/controller/base/BOD_CNT_IN/NEW_CNT_IN/prcscd
+查看node.xml文件,从后往前找tradeGroupName即可知该通讯属于哪个系统,再通过eci系统左侧列表定位到具体交易
+
+C-无法与服务端建立连接,IPS=[IP地址,端口]  IPS=[[['10.10.10.10', 10020]]].在[30]秒内未收到数据]
+crt中eci搜索某个端口在哪个路径  grep -l 10020 /home/eci/controller/base/*/*/plan.pml  /home/eci/controller/base/BOD_IN/IN_AFA/plan.pml
+eciIDE中启动找到路径,然后启动服务。前置的问题则用ECIIDE登陆后在东莞银行-第三方接出和第三方接入中启动相关应用,一般前置很少有问题,具体原因都是第三方系统没有启动导致,测试环境/预投产环境前置没有启动找曾令满、陈迪,开发环境由项目经理去找对应系统的负责人,一般查看必备技能中的求助专业人员,具体系统名称可以用通讯码prcscd通过小工具查到通讯码发哪个系统。
+
+plan打不开 <attribute name="permit" type="boolean">true</attribute>
+
+核心高速通道接口["qracct","qrigac","qrcoac","qrcocu","qrpscu","qrcodt","qrcudt","qreblv","qracts","mpqrac","miqrac","mpckac","mpqrcu","mpckac","eb1020","ylcomd","icpbck"]
+
+err10000-安全：调用安全平台处理失败,找杭领导(陆伟杭)
+签约确认及重置密码交易报错,存量的数据,保存在数据库的圈存密码密文是用银行卡卡号加密。变卡号,要对存量的圈存密文做变更。signtp是3的吧？而目前开发测试预投产存量的数据,那密文应该是生产的,
+我没办法对它解密,就没办法对它修改,所以就报错了。你新注册一个校园卡卡号,然后在对它变更银行账号,换种说法就是：那意思是自己去重新签,生成新的,就不会有问题了。
+
+cmd9999-主机：机构已签退问题： 登陆统一管理平台-柜员管理-机构解除平账-输入机构号-签到即可
+测试环境我们没权限,找叶小燕或者黄秀珍吧
+问题原因是：有笔单边账,账务不平,强行平账。机构不平的,去做复核,做完单边账务,有数据问题的就要去处理,没问题就执行第三个
+--签退
+exec ke_sc_forceout
+--检查是否有机构不平账无发生
+exec ke_tc_checktranbanlance_forall
+--检查流水未复核问题
+select * from kns_tran where transt in('0','5')
+--强行平账
+update kub_brch set brsatg = '1'
+
+
+
+put("20009");表示要授权
+
+afa组件注册：
+一般注册到工作组-业务流程下边的技术组件中，选择对应的工作组文件夹，与业务流程中的对应，没有就先新建文件夹
+之后在导航栏-窗口-其他，选择组件管理视图，在下方组件管理视图中选择对应的组件要建在哪个目录以及平台级还是银行级，一般是应用级
+选择右边的＋即可注册，对应信息参考其他组件。这种方法一般会导致afa卡死十几分钟，推荐另外一种方法，就是：选择组件-本地浏览，复制，修改，刷新IDE
+
+ab#共享存储目录 "batchfile/input/"
+cn.com.agree.ab.custom.cb.server/shareDir = /home/abs/data/
+cn.com.agree.ab.custom.cb.server/shareDirECI = /home/afa/data/
+cn.com.agree.ab.custom.bod.timetask/startTimeTask = true
+cn.com.agree.ab.cluster/servers =kf_10_77_abs_main,tcp://10.10.10.77:50001
+
+前端上送list效果头寸预报04104交易上送的数据格式<sernolist>00391244</sernolist><sernolist>00391221</sernolist>
+
+前置验签：
+/home/eci/controller/base/BOD_PART3_IN/PART3_IBPSV2_IN/datamap.map ibps.338.001.01 macflag改为3
+这个属于前置的一个验签校验,目前挂在应答时候的校验这里,雄爷负责的这一块的改造,目前我这边处理的是把验签去掉改为不验签,预投产也要改一下,在第三方接入的datamap中改应答的报文标识1-->3
+每个系统都有一个自己的msgid：IBPS_MsgId=[3136020880172016051700707216]
+
+找不到可用的通讯配置来提供服务,配置名称ABS_TO_ECI,一般是前置ECI服务器挂了
+开发环境,登陆10ECI重载或部署下前置应用即可,路径 东莞银行-->柜面接入-->新柜面接入。或者村镇银行_柜面接入-->新柜面接入
+测试环境,登陆126ECI重载或部署下前置应用即可,路径 东莞银行-->柜面接入-->新柜面接入。或者村镇银行_柜面接入-->新柜面接入
+/*大额起点线获取*/select codename from afa_maindict m, afa_subdict s WHERE m.item=s.item AND m.item='21001' AND s.code='04' 开发6块 测试50000
+
+服务器共享目录,afa和eci的data目录是共享的,不论开发测试预投产,只要是同一个环境,eci和afa的目录都是共享的agreeshare/data=/home/afa/data
+
+前端导出界面查询到的表格数据为txt文本, lib.util.FileUtilEx  这个类里面有导出方法 参考:trade.nbgl.ATM.tATMLQR.TATMLQR
+
+前置一二三类户接口：ECI接口 主机核心接口mpqrac BODHST0002 账户分类类别aclvtp0-不适用,1-Ⅰ类账户,2-Ⅱ类账户,3-Ⅲ类账户
+eci配置超时情况:
+((channelCode=="015" ||channelCode=="016") && ("prcscd=="mptrfe2"||prcscd=="mptran"||prcscd=="mpunfz"))
+
+M9999999 非法磁道 磁道信息不对 村镇银行用了东莞银行的方法
+
+二代支付测试没数据问题：
+二代支付这块我们数据问题我们公司自己的测试人员已经内部测过一遍了,今天我特意询问了一下他们,所有的交易数据都可以通过仿真产生,
+所以希望测试人员首先能通过仿真处理交易,对于环境问题找为哥(黄正为),业务问题找成哥(袁振成),需要前置配合的找我和华哥。
+
+新前端翻写复制eci配置文件命令,处理完记得登记清单,汇总给谭张祯
+cp -r /home/eci/controller/base/BOD_CNT_IN/CNT_IN/house_del /home/eci/controller/base/BOD_CNT_IN/NEW_CNT_IN/house_del
+
+前端报eci拼拆包异常或者个别字段返回多次手工修改eci接口的，首先要核实下开发测试预投产环境该接口的版本，
+版本比对预投产ltts sftp://query@10.10.20.230//home/eci/controller/base/BOD_CNT_IN/CNT_IN/
+版本比对开发       sftp://eci@10.10.10.10//home/eci/controller/base/BOD_CNT_IN/NEW_CNT_IN/
+过滤器：包含文件夹：
+dlyw01
+dlyw16
+dlyw18
+dlyw20
+修改清单精确到单个文件，如果是整个文件夹就参考第二条，如果是单个文件就参考第一条，同时备注说明下因为什么原因，哪天，改动了哪个字段或者内容。
+./controller/base/BOD_CNT_IN/NEW_CNT_IN/dgfw10/message/SEND_TO_CNT_BODY.rcd \
+./controller/base/BOD_CNT_IN/NEW_CNT_IN/dgfw30/ \
+一般情况下只要报预投产环境的ltts版本复制到开发环境ab对应的目录即可，如果需要改动，建议找谭张祯(天意)
+ECIIDE：ftp://10.10.12.11/Tools_DG/5_10eci.rar 下载后使用tzz用户登录，密码一般是8个1或者8个0
+
+ECI拼拆包效果
+拆包 @ Request.Body.sernolist[0].value=00391244
+拆包 @ Request.Body.sernolist[1].value=00391221
+拼包 @ sernolist = [00391244]
+拼包 @ sernolist = [00391221]
+
+打tar包出错,开发环境一般直接在eci或者afa目录下打包,测试环境query用户登陆后需要切换到/home/afa/目录或者/home/eci/目录下然后再打包,同时注意没每一行后边不要用空格
+tar -zcvf eci_160908-013.tar.gz \
+./controller/base/BOD_CNT_IN/NEW_CNT_IN/ckdlac/ \
+tar: 从成员名中删除开头的“/” 错误原因是不能用绝对路径,要使用当前用户路径的相对路径打包
+例如：/home/abs/abs_main/workspace/bod/classes/trade/qgcsk/gdkhdsxt/plkhds/tGDKHDS600/TGDKHDS600.abf 则应该使用
+./abs_main/workspace/bod/classes/trade/qgcsk/gdkhdsxt/plkhds/tGDKHDS600/TGDKHDS600.abf
+
+ECI数据库组件使用心得
+plan中配置数据源
+数据库组件中使用刚才配置的数据源,sql语句："select msgcontent into:错误信息1 from tbl_msg where msgcode=:拒绝1信息码"
+参考：15eci--村镇银行_第三方接入--公积金系统接入--核心错误信息返回--流程：hosterrormsg
+"insert into afa_ty_test (:tradedate,:tradeserno) values (?)"
+"insert into afa_ty_test (:tradedate,:tradeserno,:sysid,:xuqiu,:username,:prcscd,:zoneno,:mbrno,:brno,:tellerno,:chktellerno,:upddate,:updtime)
+values (ctx.tradedate, ctx.tradeserno, ctx.sysid, ctx.xuqiu, ctx.user, ctx.prcscd, ctx.zoneno, ctx.mbrno, ctx.brno, ctx.tellerno, ctx.chktellerno, ctx.upddate,ctx.updtime)"
+
+模糊查询 参考937010批量代收项目查询 多表查询组件的联表查询条件 "appcisname like '"+"%"+__REQ__.get("appcisname","")+"%"+"' and appciscode like '"+"%"+__REQ__.get("appciscode","")+"%'"
+
+/home/afa/app/trssys
+
+村镇柜面发afa上核心流程：
+村镇银行_柜面接入-新村镇柜面接入10发起,上前置转15东莞银行_第三方接入-村镇服务接入,走支付系统大小额二代上前置,之后经东莞银行_第三方接出--村镇银行服务接出发10村镇银行_第三方接入,再走村镇银行_行内接出-村镇标准服务接出上核心,问题出在村镇标准服务接出上核心这块,之前接口处理的时候没有script脚本的处理
+村镇银行_柜面接入-新村镇柜面接入发起,上核心的话走村镇银行_行内接出--村镇核心系统接出,配置接口的话直接在:村镇银行_柜面接入-新村镇柜面接入--核心接口中配
+
+前端日志过滤
+日志级别重新调整为debug模式吧
+然后在./configuration/sensitiveField.properties文件里增加
+TRACK,track2,TRACK2,track3,TRACK3,track23,TRACK23
+这些关键字,然后重启服务
+./configuration/log4j.properties
+在文件的最上面log4j.rootLogger=debug,stdout, TELLER
+
+afa4j日志级别调整：在业务处理器中修改
+
+联调切换
+网银支付联调切换：
+(1)登录10.10.20.126服务器cd /home/eci/controller/base/BOD_PART3_IN/PART3_IBPSV2_IN/
+(2)cp -p plan.pml_ccpc_20161008 plan.pml
+(3)重载第三方接入-网银支付系统接入
+
+二代大小额联调切换
+(1)登录10.10.20.126服务器cd /home/eci/controller/base/BOD_PART3_IN/PART3_CNPAS2_IN/
+(2)cp -p plan.pml plan_pmts.pml_simu_20161206
+(3)cp -p plan_pmts.pml_pmts_20160510 plan.pml
+(4)重载第三方接入-二代支付一点接入
+(5)登录10.10.20.126服务器cd /home/eci/controller/base/BOD_PART3_OUT/PART3_CNPAS2_OUT/
+(6)cp -p plan.pml plan_pmts.pml_simu_20161206
+(7)cp -p plan_pmts.pml_pmts_20160510 plan.pml
+(8)重载第三方接出-二代支付一点接出
+
+网银渠道问题总结：10ECI东莞银行_网银接入 61大额 "hvpscode" 62小额 "bepscode"
+cd /home/eci/controller/log/base/BOD_NET_IN/NET_IN_STDTCP/log    手机网银接入 
+cd /home/eci/controller/log/base/BOD_NET_IN/NET_IN_STDAPITCP/log 企业网银接入 
+
+1、发afa走stdtoafa-->东莞银行_行内接出-->行内标服接出 配置相应的接口即可发往afa,afa发村镇核心走15eci东莞银行_第三方接出-->村镇银行服务接出-->主机接口
+cd /home/eci/controller/log/base/BOD_OUTPUT/OUTPUT_STDSERVER/log          --10ECI东莞银行_行内接出-行内标服接出
+cd /home/eci/controller/log/base/BOD_PART3_OUT/PART3_BOC_OUT/log          --15ECI东莞银行_第三方接出-->村镇银行服务接出-->主机接口
+  ./workspace_zf/cfg/bocmapfile/mptran.map \                              --afa:村镇核心接口map文件
+
+2、发村镇核心走stdtocz-->东莞银行_行内接出-->村镇服务接出ecitocz的10.10.10.15:10194-->15eci东莞银行_行内接出-村镇服务接出(afa接入走AFA_TO_ECI控制器afainput流程和渠道接入走clientDispatcher控制器input流程,走afainput流程的才需要配置datamap和eci接口)input流程直接接收发送,再发往10eci村镇银行_第三方接入_标准服务村镇接入 需要配置datamap-->村镇银行_行内接出-村镇标准服务接出
+cd /home/eci/controller/base/BOD_OUTPUT/OUTPUT_CZ/log                     --10ECI东莞银行_行内接出-->村镇服务接出发往15ECI 10194
+cd /home/eci/controller/log/base/BOD_PART3_OUT/PART3_BOC_OUT/log          --15ECI东莞银行_第三方接出-->村镇银行服务接出-->主机接口
+cd /home/eci/controller/log/base/BOC_PART3_IN/STD_IN_TCP/log              --10ECI村镇银行_第三方接入-->标准服务村镇接
+cd /home/eci/controller/log/base/BOC_OUTPUT/OUT_STDSERVER/log             --10ECI村镇银行_行内接出-->村镇标准服务接出 
+
+afa发村镇mpfraz接口报错：datamap未配置,应该分大小额做转化 
+大额["sysid_zf","61"],["channelCode", "008"],["subchannelCode", "RTS"]
+小额["sysid_zf","62"],["channelCode", "008"],["subchannelCode", "BEP"],
+
+该交易在前置系统未定义,需要插入前置的交易表afa_tradeadm 参考：http://10.10.22.11/svn/bifs/项目代码/agree/source/170522-005超级结算平台业务需求说明书/dml_170522-005.sql
+insert into afa_tradeadm (SYSID, UNITNO, SUBUNITNO, TEMPLATECODENAME, TRANSCODE, TRANSNAME, STARTTIME, STOPTIME, TRADEMODE, DUTYLEVEL, STATUS, BANKREQ, UNITREQ, ACCPWDFLAG, TRADEPWDFLAG, CHANNELCODE, TRADEDESC, ERRTYPE, TRADEGROUP, NOTE1, NOTE2)
+values ('93', '00000000', '00000000', 'gdkhds', '937004', '批量代收业务签约客户信息查询', '000000', '235959', '0', '1111', '1', '1', '1', '0', '0', '1000000000000000', '1000000000000000', '0', '1', '', '');
+修改sysid、TEMPLATECODENAME、TRANSCODE、TRANSNAME一般这几个就可以了,后面如果该交易需要勾兑则TRADEMODE配1
+
+<errorCode>COMM9996</errorCode>
+<errorMsg>前置：ECI网银渠道STDTCP接入-请求交易未被开通，请技术员核查</errorMsg>
+在相应的datamap增加配置即可，可以先搜索，复制，替换其中的渠道码和渠道标识即可
+
+errorCode = COMM1011 ,errorMsg = 商户<00000000>分支商户<00000000>对应渠道代码<011>信息不存在!!!
+SELECT * from AFA_CHANNELADM   where sysid='69' and unitno='00000000' and subunitno='00000000' and agentflag='01' and zoneno='0000' and mbrno='0000' and brno='0000' and channelcode='011' and subchannelcode='EPP' 
+获取对应系统的sysid、渠道码CHANNELCODE、渠道标识SUBCHANNELCODE插入AFA_CHANNELADM表中即可
+insert into AFA_CHANNELADM (SYSID, UNITNO, SUBUNITNO, AGENTFLAG, ZONENO, MBRNO, BRNO, CHANNELCODE, SUBCHANNELCODE, BUSIMODE, AGENTBRNO, AGENTTELLER, MAXAMOUNT, TOTALAMOUNT, BILLSAVECTL, AUTOREVTRANCTL, ERRCHKCTL, STATUS, AUTOCHKACCT, FLAG1, FLAG2, FLAG3, FLAG4, NOTE1, NOTE2)
+values ('96', '00000000', '00000000', '01', '0000', '0000', '0000', '011', 'STM', '0', '7701', '77830', '0', '0', '0', '0', '0', '1', '0', '', '', '', '', '', '');
+
+
+afa交易不产生日志：一般情况都是py编译有问题,建议首先选择编译交易,然后再上传,不要直接编译上传。不是这种情况还是报错的就是比较坑爹的问题了,建议真个交易先取掉各种校验,只保留拼包拆包组件,再编译上传,然后逐个增加组件,采用排除法处理。
+
+分析linux服务器哪个进程线程占CPU最高：
+top -H -p $pid 						可以分析到eci的所有线程信息,再把第一列的pid换成16进制, 在jstack $pid里面找,就知道是哪个应用了 拿26611 转成 16进制是 67F3
+1、top命令取最上边一行的pid获取占cpu最高的进程pid 例如:24132
+2、top -H -p $pid 注意$pid是变量pid，属于进程pid 获取pid进程中各线程占pid的明细，取最上边的线程pid，将其用工具calc中程序员计算器转为16进制 例如:top -H -p 24132  获取到的线程pid为1006 转为16进制为3EE
+3、jstack $进程pid jack内存栈查看进程pid内各线程占用cpu内存情况，复制到文本中，用16进制的线程pid去搜索，即可获取到是哪个应用了
+
+AFA4j配置定时任务：
+1、登陆AFA4j管理平台：http://10.10.10.33:8080/afaconsolev2/LoginAction_redirect.do
+2、云配置中心-->公共配置-->AFA4J定时任务-->选择对应的工作组-->下边连线对应的接入适配器-->下边连线对应的定时调度服务-->选择编辑，配置信息-->进去后页面右上角编辑按钮-->左下角定时调度集，右边加号增加-->具体任务名称和描述填写交易名称，应用代码填写前置模板代码即工作组代码，交易代码，请求数据默认为空(一般不需要填)，超时时间一般填20000，触发条件秒:1，分:*/2,时:8-23，剩下的默认即可。
+3、AFA云-->集群-->右边选择刚才改动的同步配置即可。
+4、配置完毕后等待5分钟如果没有打日志，切换到AFA云-->实例-->选择对应的定时任务服务器-->选择对应的工作组-->先关闭再重新启动，一般就会打日志了。
+
+渠道经前置上核心 regflw params 要返回前置流水，tradeFlag送2 即可,是否需要勾兑 0-不记流水1-记流水需要勾兑2-记流水不需要勾兑（记流水指记公共消息头流水，一般交易送0，如果记流水必须保证渠道流水当日唯一）具体适用：由使用者决定
+渠道调前置接口不需要送这个系统标识，报文头里面的系统标识指的是服务提供方的系统标识，不是服务调用方的系统标识，财务在前置里的系统标识是08，但接口里面并不需要送这个系统标识
+
+短信通知查询 00737 MSGQUE
+账户交易明细综合查询 00136 QRACTS
+
+前端发到eci的数据先拆包,然后再拼包发到afa,此时数据在REQ中,afa处理完的结果会保存到RSP中再返回给ECI,ECI拆包拆出来的就是AFA返回的RSP中的内容
+
+--核心摘要码摘要信息匹配前置需求对应的业务类型、摘要 2017年6月超级结算平台，陆伟杭提供核心的摘要码摘要信息，通过中文匹配，为超级结算平台的业务类型对应摘要码处理上核心代收业务，新增KNP_BILL_SYCD表，取陆伟杭提供的核心摘要码入库，新增临时处理表KNP_BILL_SYCD1，具体字段可以自定义，实现将KNP_BILL_SYCD表的摘要按照KNP_BILL_SYCD1表的中文名称匹配对应的核心摘要码
+/*核心摘要信息表 KNP_BILL_SYCD*/SELECT * FROM KNP_BILL_SYCD
+/*前置临时业务种类表 KNP_BILL_SYCD1*/SELECT * FROM KNP_BILL_SYCD1
+/*处理sql 更新业务种类表信息*/MERGE INTO KNP_BILL_SYCD1 t1 USING (SELECT * FROM KNP_BILL_SYCD x WHERE x.rowid=(SELECT MAX (y.rowid) FROM KNP_BILL_SYCD y WHERE x.SMRYNA=y.SMRYNA)) t2 ON(t1.SUBNAME=t2.SMRYNA)  WHEN MATCHED THEN  UPDATE SET t1.NOTE1 = t2.SMRYCD;
+/*前置业务种类表 afa_dict*/SELECT * FROM afa_dict where sysid='93' AND classcode='transtype1';
+
+
+python文件不生效
+删掉py pyc 和class文件,同步预投产的到开发,发现还是不生效,需要重启工作组,平台有一个bug,支持替换py,如果删掉py和pyc,就不支持热部署了,需要重启才行
+
+智能排队机 巡检报告
+上个月巡检的分析结果桂院军还没给,到时候邮件通知他尽快给分析结果并寄给销售盖章,再寄回来给运维的香伟良 svn://10.10.10.32/ver_doc/wd系统文档/智能排队机/巡检报告
+
+村镇银行_行内接出-->村镇标服接出-->村镇卡系统对外提供服务接口 20170421 tzz 配置BOCCRD0005、BOCCRD0006接口,碰到坑,备注下
+渠道送过来字段,前置对字段进行二次组装,生产仿xml报文,拼到wndwda字段里 SEND_TO_CRD_BODY.rcd	
+
+测试环境查看日志：
+因为测试环境afa每个系统的日志都在一个文件夹下,不方便查找,经过查资料整理以下命令方便大家使用
+文件名顺序排列    ls -lU *文件名*  
+修改时间倒序排列  ls -lt *文件名*  (显示最新的24条记录)
+修改时间顺序排列  ls -lrt *文件名* (显示最新的24条记录)
+修改时间顺序排列  ls -nrt *文件名* (显示最新的24条记录)
+
+一般某个系统的流水比较多就会建自己的序列,cycle是循环使用
+/*创建业务流水序号序列*/create sequence IPSP_BUSY_SEQ start with 1 maxvalue 99999999  cycle-- 
+/*取流水操作*/select TCYB_BUSY_SEQ.NEXTVAL from DUAL;
+
+afa搜索命令(替换前置交易码601003即可)
+开发的afa搜索命令: find /home/afa/log -type d -name 601003 -printf "cd %p\n"
+测试的afa搜索命令: find /home/afa/log -name *601003* -printf "vsssiew %p\n"
+
+windows文件批量操作   
+批量新建文件夹(需求号需要新建多个文件夹时候使用)文件命名aaa.bat GBK编码内容如下
+md 160908-013关于综合前端系统二期业务新增功能的需求
+md 160908-014关于综合前端系统二期项目二代支付系统模块翻写的需求
+批量新建文件 文件命名bbb.bat GBK编码内容如下
+copy> 160908-001.txt
+copy> 160908-002.txt
+批量重命名：选中后按F2重命名
+
+appTools使用说明：
+1、可以通过前端菜单码查通讯码,获取通讯码后可以快速定位到前置日志并下载到down文件夹下,
+具体日志名会在界面上显示,一一对应即可,支持前置开发、测试环境,可以方便查看报错信息、查询sql。
+2、支持eci拼拆包异常交易test.ty.Ty查询。
+下载地址：ftp://10.10.12.11/
+源码svn地址：https://10.10.12.11/svn/SVN_TY/Source_TY/TyForJava
+
+前端翻写过程前置配合主要的工作内容：
+1、解决翻写eci拼拆包异常(主要)
+2、解决翻写通讯异常(附加)
+3、解决翻写查询无数据(附加)
+4、解决前端数据显示异常(附加)
+5、与新前端联调、SIT/UIT测试
+5、与技术人员讨论(附加)
+
+关于造数据的问题：
+开发测试中查询无数据问题,前置可以帮忙造数据,仅限查询类交易,不涉及账务处理,造出来的数据仅供显示用。
+行方一直强调开发人员不要手工修改数据库,这样造出来的数据单个交易没问题,但是一涉及到关联交易肯定就跑不通。
+前置造数据都是通过改数据库造出来的,不是按正常交易产生的,因此很多关联的交易没有这笔记录也是很正常,无法做业务。
+测试环境每一次造数据都是先在开发造好,然后去找行方配置组的人,即使在开发造好了,由配置组的人在测试环境执行了,
+但是由于测试人员集中测一两个系统,前置改数据库造数据集中操作同一张表,有可能刚改完这个交易的数据,
+下一批交易数据又会把之前的数据更新覆盖掉,以至于造好的数据隔天或者下一个时间段又查不到了,还是会报错,
+所以造数据不是解决问题的办法,还是希望能按照正常流程产生数据。
+2016.12.7成哥、顾总有和前置商量过这个问题,最后的决定是：
+以后有问题的交易先按照结算群里的清单文件整理一份,由成哥先确认能否正常产生数据后,再决定是否需要前置造数据。
+前置这边配合前端翻写工作的主要是我一个人,要同时配合十几个前端开发人员和多位测试人员,同时还有自己的需求要做,实在忙不过来,望理解。
+前置的工作：可以帮忙查询是否存在历史数据,查询造成通讯异常、超时的原因,解决eci拼拆包异常,解决ltts和新前端不一致问题,修改数据状态。
+所以每个测试人员每天只帮忙造一次数据。
+
+菜单码、通讯码、流水、做完交易的截图(开发or测试环境)发出来,同时做完这个交易就暂时不要再做了,
+不然我也无法找到对应的前置日志看哪里有问题,因为前置日志和流水无直接的对应关系,所以需要做完交易暂时先不要继续再做,
+我定位到日志后再做,成功的就不用截图了,不成功的记得发截图给我,菜单码、通讯码、主要是为了核对日志是否对应,
+以后如果找我希望尽可能详细的提供这些。
+各位测试人员,如果有什么问题,建议先联系前端对应的开发人员,他们方便排查问题的具体原因,
+如果是前置的问题,他们会提供前置需要的数据,这样能更加高效的解决问题。
+
+ECI拼拆包异常处理方案(新版本在前端测试交易打开test.ty.Ty处理)
+eci简介：eci是一个渠道整合的平台,正常的通讯是natp报文,负责整合各种不同的渠道的报文,多用于处理银行系统中间业务。
+拼拆包异常：各个渠道间的通讯格式有问题都有可能造成eci拼拆包异常,我们翻写过程碰到的大多是前置未在eci配置相应的交易映射(datemap)和交易出入口：ECI接口。
+解决方案原理：
+当发生eci拼拆包异常时候首先用crt登陆10eci:10.10.10.10 用户名密码:eci/eci+123 
+使用cd命令切换到新前端交易路径：cd /home/eci/controller/base/BOD_CNT_IN/NEW_CNT_IN	
+使用cd命令查看交易bbb是否存在：cd bbb(主通讯接口),如果报错：没有那个文件或目录,则修改以下示例中前后两个aaa为bbb,复制到10eci窗口执行：
+修改前命令:cp -r /home/eci/controller/base/BOD_CNT_IN/CNT_IN/aaa /home/eci/controller/base/BOD_CNT_IN/NEW_CNT_IN/aaa 
+修改后命令:cp -r /home/eci/controller/base/BOD_CNT_IN/CNT_IN/bbb /home/eci/controller/base/BOD_CNT_IN/NEW_CNT_IN/bbb 
+执行修改后的命令,同时将修改后的cp命令整理到一个文件中,文件按需求号命名即可,在翻写完成后统一发给前置开发人员。
+如果其他情况,则此eci拼拆包异常不是由于前置未配置造成的,请查询流水后发给前置的开发人员由其帮忙查询具体原因。
+简易版操作方法(推荐使用,有校验,避免手工误操作):
+20161008 tzz 新增前端测试路径test.ty.Ty 需求号、开发者、通讯码必填,只有符合ltts存在且是文件夹且新前端不存在才会处理并存档记录。
+增加通讯校验,防止出现多次操作出现文件夹下同名文件夹情况,如该通讯已存档则报错：该通讯已处理
+增加新老前端文件夹校验,不存在则报错：ltts不存在该通讯,请核实 新前端已存在该通讯,请核实
+为防止人工操作的失误,增加java工具类dealEci.java扫文件夹操作(eci处理会超时,需人工down下所有文件夹后手工处理)
+一定要记得备份自己修改了哪些,以自己负责的模块为单位,开发完毕后统一发给前置的开发人员汇总核对。备份格式如下：
+160908-002-关于综合前端系统二期项目结算业务模块翻写的需求	szfs4034 唐正伟
+160908-002-关于综合前端系统二期项目结算业务模块翻写的需求	szfs4037 龙超
+
+问：为什么很多通讯都会ECI拼拆包异常,都要找前置开发人员处理,前置能不能一起处理了,就不用前端开发人员每次都这么麻烦了？
+答：因为ltts的翻写交易比较老,有很多改造的和弃用的交易,新前端在翻写时候不需要处理这类交易,而前置这边是配合前端翻写,所以相应的也不能直接拷贝,发现一个处理一个。
+问：测试交易test.ty.Ty可以解决ECI拼拆包异常？之前都是找前置的开发人员配置的,新工具我不习惯,使用起来太麻烦,能不能继续找前置开发人员处理？
+答：因为翻写的工作前置是配合前端的,领导给的工时比较少,每个需求每周的配合工时是0.25-0.5,一个前置的开发人员要配合辣么多个前端开发人员,要处理ECI拼拆包异常、还要帮忙解决通讯问题、查询无数据问题、以及各种很奇怪的问题。同时,前置的开发人员也有自己的需求要开发,高并发时候好多个问题一起来可能搞好久,然后半天就过去了。所以就偷懒写了个工具,使用的测试交易增加了一些校验,降低了手工误操作的风险,同时也节省了开发人员的时间,希望大家能理解,尽量使用新工具,搞不定了再找前置开发人员。
+问：测试交易有哪些校验规则？
+答：测试交易会检查新老前端每个交易对应的ECI通讯文件夹,ltts文件夹不存在报错：ltts不存在该通讯,请核实。新前端存在文件夹则报错：新前端已存在该通讯,请核实。通讯已处理报错：该通讯已处理。同时增加java工具类扫描整个eci新前端文件夹,防止因手工误操作导致的：同名文件夹下存在同名文件夹的情况。
+
+查看ECI日志（新前端屏蔽日志后查看日志的暂行方案,前置人员大多数不看AB日志而是直接看ECI日志,里面包含前端上送的所有数据和字段）
+赞同前端前置通讯模式：AB-ECI-AFA-ECI-AB		AB的报文到ECI会拆包,然后拼包发往AFA,AFA拆包处理后会拼包返回数据给ECI,ECI再拆拼包返回给AB前端。
+用crt登陆10.10.10.10 用户名密码:eci/eci+123		cd /home/eci/controller/log/base/BOD_CNT_IN/NEW_CNT_IN/log  
+之后view NEW_CNT_IN.log  eci日志一般刷新很快,隔一个小时就找不到了,所以做完交易后要马上到eci查看日志
+shift+g 倒着查看 ?prcscd 搜索通讯码  ctrl+u往上找  
+新柜面渠道接入-xxxxxxxx 	找到xxxxxxxx这8位流水号最开始的位置表示前端发到eci的通讯开始处理,拆包往下一系列就是前端上送的字段,检查字段和数据值是否正确。
+拆包之后会拼包发往AFA:JMS调用组件,使用消息发送器为:JQ_SEND_TO_AFA[JQ_SEND_TO_AFA],接着会等待AFA处理完毕返回报文后拆包：NATP拆包
+接下来会拼AFA的数据包返回CNT柜面系统：报文拼包组件 @ 使用报文'cnttoafa/message/SEND_TO_CNT_ALL.rcd
+如果哪一步出错的,会有报错原因,详细分析即可.翻写过程中的eci拼拆包异常的报错原因大多数是无法创建文档对象,使用测试交易test.ty.Ty处理即可。
+
+村镇次日转账流程状态含义：
+录入后状态为:AF06已受理待发送-->批处理后变为:AF08已受理记账成功,此时无法撤销-->冲销后状态变为AF13已撤销
+次日转账行外转账问题：
+简单流程：当天录入,次日前置定时任务会处理,状态变为AF08,这是一个中间态,接下来登陆测试仿真：http://10.10.20.95:7080/SIMUFlex/SIMUFlex.html  大额来账--客户发起的汇兑业务,或者小额来账-贷记-客户发起的普通贷记,查询后找自己录入的金额,右边选择--清算回执--发送成功再等3-5分钟定时任务会自己更新状态,网银渠道同步即可,正常处理完成状态会变成AF11,失败会变成AF10。
+整个流程,涉及多个前置的定时任务处理,处理时间大约半个小时左右,当查到AF08后过一会儿即可去仿真找对应的金额,同一个法人,同一个清算行,同一天是作为一个批次的,金额会累加,也就是001法人和006法人是2个批次,仿真中可以点开明细查看。
+AF08这种问题其实不用担心,经过多次核实,一般情况下前置的流程都是跑完的,发到了仿真,仿真在应答回前置的过程中,有可能超时,如果出现异常,晚上人行会进行日终对账,核实账务是否成功,前置收到对账结果即会对当日的账务进行核对,成功则更状态为AF11,失败也会更状态为AF10.一般情况的AFO8一直没改变是因为仿真没有应答,有可能被切到预投产去了
+前置于周五更新测试,增加止付的超时处理与转账失败解止付交易,具体实现是：
+1、止付超时 前置状态是AF03-使用凭证超时,此时会去核心根据前置日期流水查询对应的记录是否成功,核心成功则会将状态变更为AF06-已受理待发送,然后按正常流程由定时任务去核心套账做交易等,如果核心返回errorCode=="HOST1002"则前置更状态为afastatus = AF00-已作废; 其他情况则：ECI与主机通讯异常,还原超时状态AF03-使用凭证超时,下一轮继续处理;
+2、转账失败解止付 前置状态是AF10-已受理记账失败 主机状态是3记账失败,7冲正超时,此时会去核心根据前置日期流水获取支付日期流水,然后去核心解止付,核心成功则会将主机状态变更为6-冲正成功,此时限额应该回滚了,失败怎会将主机状态变更为7-冲正超时,下一轮继续处理。
+前置昨晚加班优化了东莞银行和村镇撤销超时、隔日撤销核心成功而前置AF15一直不变的问题,撤销超时这笔账务如果是AF15,前置会用对应撤销的前置日期流水去核心查该流水状态,如果核心该流水生效,说明冲销成功,前置就变更状态为AF13,如果流水不存在或者不是生效状态,则前置会继续保持状态为超时,实时返回网银：撤销交易超时,请重新发起撤销交易 如果当日未解止付成功,状态会一直AF15,钱没转出去,网银也没交易成功,这个支持当日、隔日继续撤销,客户在网银继续发起撤销就可以了。
+
+
+eci接口返回柜面的接口配置的时候设置默认值是没用的,因为拆包是拆到的肯定有这个字段,设置默认值是当这个字段不存在时候才给默认值,不是这个字段为空时候给默认值,这点要注意,如果需要给字段设置默认值,需要先判字段是否为空,然后给值,
+参考：./controller/base/BOD_CNT_IN/NEW_CNT_IN/gdkhdsbat08/message/SEND_TO_CNT_BODY.rcd \
+
+服务器不打日志
+1、检查服务器空间是否满了 df 命名
+2、检查
+
+总行、分行、支行、网点、柜员，正常的顺序是这样子从大到小排序的
+一般只有一个总行，数据库是不记这个的，数据库从分行开始登记，比如长沙分行、广州分行等
+
+前置交易调交易问题
+参考205004交易 或者工作空间搜索交易调度
+
+现在1127和1134是发往afa的了之后这个接口都不发host的了,只改afa部分
+
+修改不定长通讯组件-交换,为定长通讯组件(发送-取头-字符去空拼body),解决丢包问题
+./controller/base/BOC_OUTPUT/OUT_STDSERVER/stdtocards/message/2SEND_TO_PROXY_fix_pack.rcd \
+./controller/base/BOC_OUTPUT/OUT_STDSERVER/stdtocards/message/3RECV_FRM_PROXY_fix_unpack.rcd \
+./controller/base/BOC_OUTPUT/OUTPUT_CARDS/ecitocards/workflow/ecitocards.cwf \
+
+办公座机电话拨打：本地加9外地加90
+
+接口内容，下次麻烦同时提供这四个参数： eciSeverId templateCodeName transCode prcscd
+
+前置上线需要比对开发测试预投产生产的版本,
+各位大兄弟们,碰到前端前置渠道等各种问题,先去这个文档里面搜索关键字,有问题描述的就会有解决方案,建议大家一定要抽空看一下这个文档,
+这是我加入赞同一年半以来碰到各种问题所整理的学习笔记,求人不如求己,多学一点,多点套路,就少浪费一点自己折腾的时间,用户名密码都是agree,
+svn地址：https://10.10.12.11/svn/SVN_TY/Doc_TY/珠海赞同科技_交易资料.txt
+
+字符串in不要用元组，要用列表：
+>>> a="STM"
+>>> b=""
+>>> c=["STM"]
+>>> d=("STM")
+>>> b in d
+True
+>>> a in c
+True
+>>> b in c
+False
+>>> 
+http://10.10.22.11/svn/bifs/项目代码/agree/文档/标准服务接出接口说明.xls
+----以后配置标准服务的接口,如果是穿透没有登记前置接口说明文档,也要把清单登记进去注明是穿透类的
+--------------------------------------华丽的分割线--------------------------------------------
+
+常用命令
+目录、文件、文件夹下常用命令
+-a			列出所有文件,包括隐藏(-all)
+-h			以K\M\G显示文件大小
+-i			显示inode号(-inode)
+-k			以K字节的显示
+-l			带权限、所有者、大小等信息
+-r			反序(-reverse)
+-R			同时列出子目录层(-recursive)
+-s			以块为单位(-size)
+-S			根据文件大小排序
+-t			修改时间排序
+-U			不排序,按原有次序
+-1			每行列出一个文件(数字1)
+ls 			查看所在位置的所有文件		
+cd..		退出当前文件夹								
+pwd			查看所在的位置路径
+view		根据日志名查看日志 view 01100.log
+mkdir 	创建文件夹 	mkdir workspace 
+grep 		搜索字段 grep -l 2016072000789710 *
+tail  	实时查看日志 tail -f 21179.log 			
+rm -r * 清空日志
+ipcs -l 查看系统的内核参数che
+tar 		tar打包		c建立新归档文件 r追加文件 z压缩文件 x解压文件 v输出处理过程  f对普通文件操作 			
+lcd 		下载路径											
+get 		下载文件
+su 			--help 
+/ 			向下找	
+? 			向上找	
+n 			继续下一个	
+N 			继续上一个	
+:q  		退出	
+:e  		重新加载文件	
+G 			连按两次到文件的最后一行	
+g 			连接两次到文件第一行	
+u 			还原相当于crtl+z	
+! 			在任何一个命令后组合表示强制			
+小知识点总结：
+赞同 AFA 管理工具(V3.0)		afacsl 	重启前置服务器/工作组
+赞同 AFA 配置工具					afacfg  定时任务配置 
+搜索字符串在特定文件名		find . -name *933003*|xargs grep -l 2017050804281789 *
+eci数据debug							logger.debug(new String(ctx.recv));/*zenglm20130809*/	
+搜索端口在哪个plan文件中 	grep -l 10113 ./controller/*/*/*/plan.pml
+top -H -p $pid 						可以分析到eci的所有线程信息,再把第一列的pid换成16进制, 在jstack $pid里面找,就知道是哪个应用了 拿26611 转成 16进制是 67F3
+查看占用内存进程					ps aux|head -1;ps aux|grep -v PID|sort -rn -k +3|head    ps aux|head -1;ps aux|grep -v PID|sort -rn -k +3|head  获取标题ps aux|head -1;将ps aux得到的标题去掉(即grep不包含PID这个三个字母组合的行)grep -v PID 排序sort -rn -k +3 倒序r 数值大小排序n 针对第三列-k +3
+查看配置文件							/home/afa/workspace_zf/cfg   配置文件 boccnp.conf ,虚拟映射
+上核心map配置文件					/home/afa/workspace/cfg/mapfile  afa_boc_branchinfo.map
+跳转到py文件							选择组件后按F4可跳转到py文件
+list-String								第一个是list,第二个是String	["opptstatus",__RSP__.get("opptstatus",[]) + __REQ__.get("opptstatus","")],
+小数点处理								("Tra_TxnAmt","")=="" else "%.2f"%(float(__REQ__["Tra_TxnAmt"])/100)
+金额替换									__REQ__["total_amount"] == __RSP__["H_tranam"].replace(",","")
+in条件										赋值["status","^0,1,2,3"],   判断__REQ__["db_status"][0]  in ("1","2","9")
+联表操作条件							"acctna like '%"+__REQ__.get("acctna","")+"%'"
+查询条件									"to_char(tranam,'fm99999999990.00') as tranam",
+字符串join								["tradeserno","^"+",".join(__REQ__.get("sernolist",""))],     ['sernolist',['00317787','00294683']] 后["tradeserno","^"+",".join(__REQ__.get("sernolist",""))], 变成['tradeserno', '^00317787,00294683']           
+字符串赋值								["errorMsg","该客户%s已有预报数据提交,请核实"%(__REQ__.get("orgtradedate",[""])[0])]
+字符串赋值								["printnums",">'0'"], ["printnums",">'%s'"%("0")],
+script赋值								["script", "msgbox(\""+"请座班授权入账"+"\");"],
+金额处理									["amount",[">="+__REQ__["begamount"],"<="+__REQ__["endamount"]]],
+前台弹框提示							组件:返回前台对话框 需配置eci中sendtoafa字段dlgctrlid 参考交易132119、132120
+													组件:超时返回赋值  超时处理码errorCode = "CTIMEOUT";  参考交易132119、132120
+挂起进程 									参考交易132119、132120
+xml文件处理								B_XMLAppFunc具体可以参考Sdsdfcm_public_126.py这个文件
+超时处理									params_G01/203005
+银网通15出口日志					/home/eci/controller/log/base/BOD_PART3_OUT/PART3_SZIPSP_OUT/log
+是list										__REQ__["acctno"] = list(set(__REQ__["acctno"]));
+错误信息弹出							B_BODAfaFunc.errTreatment("QZ132310","记录不存在");
+错误日志打印							B_BODAFALoggerAgent.error("记录不存在,不处理");
+循环赋值									values = [initDict.get(v,"") for v in fields];
+密码设置后8位							["srcpwd",__RSP__["idcode"][0][-8:]]  ["srcpwd",__RSP__["idcode"][0].rjust(8,"0")]
+文件名前6位								if filename[:6] != "ZJTCYB":
+翻页标志pageFlag					#定义全局变量,首页为1,上一页为2,下一页为3,尾页为9,数据字典查询为0
+python非处理							["flowstatus","!^OC031"],
+python拼0和非空						参考头寸预报系统 130112 " and txnstatus='0' and (provstatus is null or provstatus='2')"
+insertMany判断bool				头寸预报：字符串false做if(commit)始终为真,字符串与bool类型不能互判,字符串盘bool时候始终为真
+afa接收到数据效果       	['sernolist',['00390244','00390221']],
+更新数据库组件使用方式  	["tradeserno","^"+",".join(__REQ__.get("sernolist",""))],
+list取值                	["acctno", __REQ__.get("acctnolist","")[__REQ__.get("index",0)]],
+ASC排序                 	翻页字段送"0000000000"
+DESC排序                	翻页字段送"9999999999"
+二代支付账务超时处理 			A_BODDXFunc2_SendCheck.py accountingDisposeCNPAS2
+村镇代理账务超时处理 			A_BODCZDLFunc.py          resolveTimeOut
+查询字段拼接							前置查询记录(分页)组件查询字段拼接,适用于把数据库中错误信息和错误码合并返回给前端一个字段 "respretcode||respretmsg",在eci中用该字段作为值即可接收到两个字段拼接后的内容 参考接口937008批量代收明细结果查询/打印/导出(gdkhdsbat08) 示例：NATP拆包 - respretcode||respretmsg[1]=[QZ937002该笔代收明细记录在签约表中不存在,直接失败]
+显示日志空间占比					df 			
+切换超级用户							su -
+重启											reboot
+里面可以看到506是哪个用户	cat /etc/passwd 
+获取服务器版本    				uname -r 
+查看端口                  netstat -apn|grep 8080
+查看进程信息							ps -ef
+查看制定进程							ps -ef|grep afasvc* 
+查看进程									ps -ef|grep afasvc*G08*				
+查看进程									ps -ef|grep afasvc|grep 8812101 
+ssh连接										ssh query@10.10.24.35 回车后输入密码
+查看端口									netstat -ano|findstr "80" -a显示所有端口和连接 -b显示可执行程序 -e显示以太网统计 -n显示地址和端口 -o显示进程id 
+kill进程									kill -9 26623  -9终止拥有的全部进程 -STOP停止进程但不关闭 -COUNT重新开始一个停止的进程 -KILL立即停止不清理
+将grep到的保存到文本中		grep 09705195 all.log.* > /home/query/1234.txt
+否支持inotify     				ll /proc/sys/fs/inotify 判断服务器是否支持inotify 内核至少要2.6.13 
+查看占用内存进程  				top 然后按P
+检索目录文件和大小_				du -sh *
+当前目录大小			 				du -hm --max-depth=1|sort -n
+检索大于800M的文件_ls 		find . -type f -size +200M -print0|xargs -0 ls -l
+检索大于800M的文件_GB 		find . -type f -size +800M -print0|xargs -0 du -h|sort -nr
+检索大于800M的文件_MB 		find . -type f -size +800M -print0|xargs -0 du -hm|sort -n
+.txt结尾文件的行数_   		find . -type f -name '*.tar.gz' -print0|xargs -0 wc -l
+压缩.txt结尾文件的行数		find . -type f -name '*.txt' -print|xargs tar -zcvf txt.tar.gz
+删除文件              		find . -type f -name '*.log' -print0|xargs -0 rm -f   -- -0将\0作为定界符
+复制文件到指定目录    		ls *.jpg | xargs -nl -I cp {} /home/eci/temp/tzz/photo
+查包含文件名字符串的日志  grep -l 88888888 *932006*|xargs ls -rtn 
+退出日志									ctrl+z	
+向上翻一页								crtl+b  
+倒着查看日志							shift+g 															
+创建文件夹								mkdir workspace 
+创建文件									touch workspace.txt 
+压缩文件									tar czvf afa_160419-010.tar.gz workspace   tar -zcvf 20170207.tar.gz NEW_CNT_IN/ 压缩当前目录下文件夹NEW_CNT_IN/ 重命名为20170207.tar.gz
+解压缩文件								tar xzvf afa_160419-010.tar.gz workspace 
+设置下载路径							lcd d://	之后使用get命令下载
+服务器远程传文件					scp /home/afa4j/tomcat6.tar.gz afa@10.10.10.249:/home/afa/workspace_zf/PyLib/ 之后输入密码,
+本地文件copy到服务器			scp /home/afa/workspace_zf/PyLib/A_BODComponentKHDS.py afa@10.10.31.152:/home/afa/workspace_zf/PyLib/ 
+													scp /home/afa/workspace_zf/PyLib/A_BODKHDSFunc.py afa@10.10.31.152:/home/afa/workspace_zf/PyLib/ 
+本地文件copy到服务器			scp /home/afa/workspace_zf/PyTrade/Tgdkhds_937005.py afa@10.10.10.10:/home/afa/workspace_zf/PyTrade/
+服务器文件拷贝到本地			scp afa@10.10.10.249:/home/afa/workspace_zf/PyLib/A_BODComponentKHDS.py /home/afa/workspace_zf/PyLib/ 
+下载文件									get afa_160419-010.tar.gz	
+telnetIP端口							10.10.10.77 35777
+压缩指定目录文件到指定目录tar zcvf ./temp/tzz/NEW_CNT_IN.tar.gz ./controller/base/BOD_CNT_IN/NEW_CNT_IN/
+--------------------------------------华丽的分割线--------------------------------------------	 	
+版本比对路径(就是查日志的地址,去掉log)
+开发环境AFA:sftp://afa@10.10.10.10//home/afa/
+开发环境ECI:sftp://eci@10.10.10.10//home/eci/
+测试环境AFA:sftp://query@10.10.24.34//home/afa/
+测试环境ECI:sftp://query@10.10.20.126//home/eci/controller/base/BOD_CNT_IN/CNT_IN/dgfw30
+预投产环境AFA:sftp://query@10.10.20.230//home/afa
+预投产环境ECI:sftp://query@10.10.20.230//home/eci/
+--------------------------------------华丽的分割线--------------------------------------------
+
+测试二代仿真网址：http://10.10.20.95:7080/SIMUFlex/SIMUFlex.html  登录地址		
+		测试二代仿真数据库：10.10.20.102:1521:test10g03  simudb/abcd++1234
+==============常用mq指令
+dspmq						(查看mq运行情况)
+strmqm xxxxxx		(启动指定mq)
+endmqm xxxxxx		(关闭指定mq)
+
+
+==============sftp登录指令
+sftp -P 20000 chinabank@172.17.59.34	(回车录入密码)
+
+==============VPN连接配置
+1、10.10.10.105 VPN拨号软件  设置至121.8.198.4 ,并且在105上增加NAT  
+2、10.10.10.94 前置机  增加路由：route add -net 56.16.71.0/24 gw 10.10.10.105
+注：1.测试环境中心的IP 56.16.71.183 
+    2.对外IP 10.10.11.138 
+   
+afa4j配置 
+${workspace}
+${workspace}/test/pyTrade
+${workspace}/test/base
+${workspace}/PyTrade
+--------------------------------------华丽的分割线--------------------------------------------
+谭张祯 柜员01100 授权12015 12046
+李文成 柜员01069 17043  01411 授权36053  17016  17016
+罗天骄 柜员01360 授权01361 授权96096  授权96008
+唐正伟 柜员09186 授权09026
+谭旭   柜员32079 授权05048
+孙志谊 柜员88247 授权88256  77212
+张中元 柜员01358 授权36001 
+郑基钦 柜员08142 20057
+方琳   柜员21041 授权27027
+龙超   柜员01351 授权88026
+谭华燕 柜员09117 授权09131
+潘兴艺 柜员01304 01151 96086 96063
+黄志成 柜员77319
+金俊仪 柜员01142 01143 授权 26007  26038
+
+--------------------------------------华丽的分割线--------------------------------------------
+表外记账    					TCBKPOS 	勾兑交易码cbkpos	无翻页
+表外记账取消					TCBKPQO		勾兑交易码iaovdl	翻页 	删除	2个打印表：冲销 表外科目传票
+表外内部账户查询			TINACQO		无勾兑
+表外账户明细查询			TQRACMB		无勾兑
+套帐传票列表查询			TCBCKDT 	无勾兑
+修改界面：						TPSCUM2 
+两个查询：						DEPRSN
+两个打印：						TCNSLCK
+读磁读卡：						TJF2011
+发送表格：						TSLCHCK		
+删除操作：						QUBHFL 		CBCKDT IAVCBK
+Fragment 							TDDFUND 	综合业务-特殊扣款处理-扣款
+Fragment 							CBKMEC 		acctno_OnBlur再通讯
+MessageWin 						EXCHMB 		trade.hxkhgl.grzh.pzzqfs.tEXCHMB.TEXCHMB
+表格对应文件					QRACMC  	QRACMB		table_2XXXXXXQRBILL   
+											IAVCBK		CORFUS		table_2XXXXXXIAVCBK   
+查询对应文件    			qracct 		iavcbk
+对公重要信息维护界面	UPCORP 		cifs_upcorp                                                                  
+交易冲正 双表格				CBKCOR  	dg_strike_cbkcor  			错账处理凭证dg_misprcs_cbkcor  参考reverse_05.fmt         
+表外明细查询					QRACMB  	dg_outside_tran_list 		表格打印按钮 									 参考QRIGAC->spec_qrigac   		
+帐户冻结、止付信息查询MDFROZ  	spec_mdfroz 标准打印                                                  		
+表外记账取消					CBKPQO  	cbkpqo correctstr                                                                    		
+特殊扣款							DDFUND  	spec_ddfund      
+分账户明细查询				QRACVC		             				isPageDown、isQueyAll查询全部
+回单打印							BLPRNT    多选表格打印
+表格打印              QRFXAT    
+维护分行打印					DEDTMA    trade.nbgl.qtgl.tskk.tMANTAN.tDEDTMA.TDEDTMA       	
+表格打印							trade.jkyw.zykbpzyw.djbcx.tDCRPQR_C.TDCRPQR_C 
+表格打印							trade.jkyw.zykbpzyw.zxjkyfjkwl.tSDDCMT_S.TSDDCMT_S                
+级联交易							OPCXSZ 选择代办跳转到代理人界面,级联交易OPCXSZ   agnttg_OnBlur方法
+前端问题总结:
+--------------------------------------华丽的分割线--------------------------------------------
+表格设置
+1、table的属性"可排序"都用false,不支持排序,之前做的交易也检查一下。
+2、table项,对公账户的户名长度设置为320,对私账户的户名长度设置为160。
+3、table项,账户长度180,金额长度180右对齐,证件号码160。
+4、table项,金额只是展示的话JE_SHOW
+5、table的属性"可排序"都用false,不支持排序。
+6、table项,对公账户的户名长度设置为320,对私账户的户名长度设置为160。
+7、table项,账户长度180,金额长度180右对齐,证件号码160。
+
+putAll会覆盖,发的数据多了会导致凭证号码接收为空
+语句call("CHEQTP2CHEQNO","CHEQNO");这一句不用翻写	
+勾兑表 prcscdcheckdef.txt
+下拉框表 parm.txt
+F1快捷键帮助文档
+F3 重打最后交易(LASTPR)
+ctrl+p  测试交易
+凭证尾箱查询openwin("CSQRDC")
+钱箱凭证查询：现金、重要凭证管理--》凭证管理 --》 综合查询 --》 钱箱凭证明细查询
+勾兑交易：内部管理 --》 日终扎帐 --》传票流水换人勾对确认
+大额存单 户名数字字典：
+个人户名：CUSTNMP
+单位户名：CUSTNMU
+	
+//需要引入的包
+import lib.util.gui.GuiUtil;
+import lib.util.DateUtilEx;
+import lib.dictionary.ComboxUtil;
+	
+//初始化方法
+orgncd.setVisible(true);	//设置目标可见
+acctna.setText(Tools.getMapKey(revMap, "acctna", ""));//revMap获取值
+GuiUtil.setTradeGuiDisEnable(this);//设置整个界面所有目标不可用
+GuiUtil.enable(new Component[] { custno, idtftp}, false);//设置界面指定目标不可用
+setText(getStoreData("ccustno"));//设置文本从getStoreData中获取
+OnBlur()									光标离开事件
+setEnabled(false)					设置目标不可用
+setVisible(false)					设置目标不可见 visible(0,"ACCTNO","MGNTCD","PRNTIS")   1可见 0不可见
+clearfld									清空lib.util.gui.GuiUtil.clearComponent(this, new Component[]{});
+CUSTNO=r#.CUSTNO;					custno.setText((String)map.get("custno"));
+setComboParm  selectpref	给下拉框指定值列表 				
+accountMessage						显示当前小窗口 						
+inputtwice								指示此域是否进行两次输入	
+systemcall 								执行命令行操作						
+sendlist 									将上送 VTLIST 中的指定记录加入到上送包中
+windowName								返回当前窗口的窗口名称
+objectName								返回当前控件的名称
+call											调用通用窗口中定义的SCRIPT函数
+delitem										删除指定VTLIST中的当前记录
+disable										使窗口中的 域不可用
+disableflds								使窗口中的多个域不可用
+displayflds								从返回包中取出与窗口相关的字段的值,并显示在窗口上
+displaytofile							将返回包中的数据保存到指定的文件中
+addcombo									从返回包的列表中取相关值放入指定的下拉控件中
+addcomboparm							给指定的下拉框新加参数值
+SummaryScript
+resetIQL();								光标不要放到table表上
+
+//注册热键
+registerHotKey("table_2XXXXXXIAVCBK", "CR", "table_2XXXXXXIAVCBK_OnRowDoubleClick");
+registerHotKey("table_2XXXXXXIAVCBK", "NUMPAD_ENTER", "table_2XXXXXXIAVCBK_OnRowDoubleClick");
+registerHotKey("table_2XXXXXXIAVCBK", "DEL", "DeleteScript");
+
+//#勾兑元素定义表 prcscdcheckdef.txt
+户名	ACCOUNT_MESSAGE1~ACCTNA   map.put("户名", acctInfo.get("acctna"));
+
+//d#的处理 表示从表格中获取	                      
+s#PGTRDT=d#TRANDT;s#PGTRSQ=d#TRANSQ;//发送表格d# 
+StringUtilEx.isNull(m.get("prcstx"))//判断revMap字段是否为空 blprnt
+
+//t 磁条配置文件的变量写法 
+//g的处理
+s#RCRDNM = g#RCRDNM_DEFAULT; g#表示全局	传14就可以
+g("OPGSDB","SEND","PSBKIS") = "N";						putStoreData("psbkis", "N");
+g(windowName(),"MGNTCD")="000000";						putStoreData("mgntcd", "000000");
+if(g(windowName(), "FLAG") == "1")						"1".equals(this.getStoreData("flag"))
+g("UPCORP","LIISAU")=combo_parm("LIISAU");		putStoreData("liisau", liisau.getPrefix());
+g("UPCORP","CUSTCN")=CUSTCN;									putStoreData("custcn", custcn.getText());
+g#UPCORP.pWin == "OPCPCU"											"OPCPCU".equals(getStoreData("OPENWIN"))
+expr(g#UPCORP.pWin + ".CUSTNA") = w#CUSTCN;		putStoreData("custna", (String)revMap.get("custcn"));
+
+On_Blur回车不触发,因为下边没有需要走的控件了,自定义一个 abc_enter方法,然后注册一下。registerHotKey("strbrno", "CR", "strbrno_enter");
+//strstr("/101/102/103/104/",w#QUERYCODE) &gt; 0	querycode.getPrefix().toString().indexOf("/101/102/103/104/") > 0
+
+//获取日期
+STDATE=dateadd(g#SYSTDT,-30) stdate.setText(DateUtilEx.getAddMonthString(DateUtilEx.getHostDate(this), -1));
+TRANDT=g#SYSTDT;  trandt.setText(lib.util.DateUtilEx.getHostDate(this));//获取日期TRANDT=g#SYSTDT;
+UNFRDT=g#SYSTDT;	unfrdt.setText((String) getTellerInfo().get(GlobalMacro.G_核心日期)); 
+w#BEGINDATE = call("Month_PreMonth",g#SYSTDT);  begindate.setText(DateUtilEx.getAddMonthString(DateUtilEx.getHostDate(this), -1));
+//获取机构号w#STRBRNO=g#BRCHNO;
+strbrno.setText(import lib.util.TellerinfoUtil.getBrno(this));//获取机构号w#xxx=g#BRCHNO;
+qruser.setText(lib.util.TellerinfoUtil.getTellerNo(this));//获取柜员号w#xxx=g#USERID;
+String tellerno = (String)this.getTellerInfo().get(GlobalMacro.G_柜员号);
+String hostDate = (String)this.getTellerInfo().get(GlobalMacro.G_核心日期);
+
+//三目运算符	  	
+Double.valueOf("".equals(drtrnm.getText())?"0":drtrnm.getText())>1
+	
+// 按字节长度拆分字符串,返回拆分后的字符串数组
+lib.util.StringUtilEx.splitStringByteLen(String srcStr, int splitLen)
+// 按字节长度拆分字符串,并限制数组的长度。返回拆分后的字符串数组
+lib.util.StringUtilEx.splitStringByteLen(String srcStr, int splitLen, int maxArrayLength)
+一般用于打印。使用示例：
+
+//ArrayList装数据
+List<Map<String,String>> list = (List<Map<String,String>>)dataMap.get("bodrcd");
+ArrayList list = (ArrayList)dataMap.get("bodrcd");//也可以用ArrayList来装数据
+
+//objectName 如果是INACOR提交按钮,就把界面上的数据qracct上送,否则就是翻页,从表格中拿出acctno上送
+if( objectName() == "INACQR" ){
+	s#ACCTNO = w#QRACCT;
+}else
+{
+  s#ACCTNO = d#ACCTNO;
+};
+
+//老的错误信息
+String errorCode = (String) revMap.get("errorCode");
+String errorMsg = (String) revMap.get("errorMsg");
+if (!GlobalMacro.G_前置成功.equals(errorCode)) {
+	this.pushError(errorCode + "-" + errorMsg, true);
+	TradeMainCommunication.createScript(this, revMap);
+	return ;
+}
+//新的错误信息
+if(TradeMainCommunication.getResultErrorCode(this, revMap,true) >= 0){
+	return;
+}
+
+//在交易中调用另外一个交易中,别忘了,添加以下三个：
+importVar.put("#TRADECODE", getStoreData("TRADECODE"));
+importVar.put("#TRADETYPE", getStoreData("TRADETYPE"));
+importVar.put("#TRADENAME", getStoreData("TRADENAME"));
+
+//JAVA中int转string三种方法
+sendMap.put("curpag", "" + curpag);//自动转化为字符串
+sendMap.put("curpag", String.valueOf(curpag));
+sendMap.put("curpag", Integer.toString(curpag));
+datas[0]=String.valueOf(1 - Integer.parseInt(datas[0]));//string转int
+Integer.valueOf(_finlno.substring(_finlno.length()-7))
+Double.parseDouble(frozbl.getValue())
+
+字符串截取
+OC:	NSString *newString = [str substringWithRange:{3,4}]; 表示从下标3开始，截取长度为4的字符串 
+JAVA:	aaa.substring(0,4) 表示从下标0开始到下标4的长度，不包含4 aaa.substring(4)表示从第4位开始到结尾的字符串
+Python:	aaa[0:4] 表示从下标0开始到下标4的长度，不包含4 aaa[:-4]表示从头开始到倒数第4个字符 aaa[-4:]表示从倒数第4个字符到结尾的字符
+//OPENWIN操作
+if("UPCORP".equals(getStoreData("OPENWIN"))){
+	custno.setText(getStoreData("custno"));
+	custno_OnBlur();
+}
+
+//授权,不用管
+g(windowName(), "CKBKUS")=g#CKBKUS;
+g(windowName(), "CKBKPW")=g#CKBKPW;
+
+//设置下拉框UI_COMBOX
+基本下拉框 lib.dictionary.ComboxUtil.setComboBoxItem(this, dcmttp, "DCMTTP_PSCH");
+下拉框前缀 dcmttp.setPrefix("CS");
+add下拉框	 ComboxUtil.addComboBoxItem(this, dcmttp, new String[]{"796 理财卡金卡","797 理财卡白金卡","798 理财卡钻石卡","  无"});
+多个下拉框 value="TRANTP|ALLNUM"/>	DCMTTP_CZ|DCMTTP_CD|DCMTTP_YBT|DCMTTP_CARD|DCMTTP_FNCD|
+					 ComboxUtil.setComboBoxItems(this, dcmttp, "DCMTTP_ZFR", "DCMTTP_ZFB");
+ 					 ComboxUtil.addComboBoxItem(this, dcmttp, new String[]{"303  表外(备忘)科目收入传票"});
+ 					 String[] str = new String[]{"DCMTTP_CZ","DCMTTP_CD","DCMTTP_YBT","DCMTTP_CARD","DCMTTP_FNCD"};
+汉化-前缀  ComboxUtil.setComboBoxItems(this,dcmttp, str);          selectpref("RPLSFS","RPLSTP_CD", "1*2");
+					 ComboxUtil.setComboBoxItemBySelectPrefix(this, rplsfs, "RPLSTP_CD", new String[]{"1","2"});
+ 					 ComboxUtil.setComboBoxItemBySelectPrefix(this, dcmttp, "DCMTTP_741", new String[]{"733","734","748","749","761","762"});
+汉化前缀*  selectpref("CHEQTP","DCMTTP_TYC|DCMTTP_ZFB","*");  *表示全部,可以忽略
+					 ComboxUtil.setComboBoxItems(this, cheqtp, "DCMTTP_TYC", "DCMTTP_ZFB");
+
+显示下拉框值第一个值 import trade.publicwin.tradeHelp.TradeHelp  
+						ComboxUtil.setComboBoxItemShowFirst(this, setlpd, "TY_SETLPD");//---增加了一个默认显示下拉框值第一个值的方法
+后台返回一个下拉项	ComboxUtil.getPrefIxAndSuffix(this, "TRANTP_ALL", (String) map.get("trantp")),
+										ComboxUtil.getPrefIxAndSuffix(this, new String[]{}, lib.util.Tools.getMapKey(map, "optstatus", "")),
+后台返回多个下拉项  ComboxUtil.getPrefixAndSuffixs(this, (String) map.get("amntcd"),"AMNTCD","AMNTCD_CD"),
+
+addcomboparm	 addcomboparm("FNPDID", r#PRODCD, r#PRODNA);
+后台返回一个	 fnpdid.setItems(new String[] {lib.util.Tools.getMapKey(revMap, "prodcd", "") + " "+ lib.util.Tools.getMapKey(revMap, "prodna", "") });
+后台返回多个   ComboxUtil.addcombo(revMap, fnpdid, "prodcd", "prodna");
+							 fnpdid.setPrefix(lib.util.Tools.getMapKey(revMap, "prodcd", ""));
+下拉单内容是后台返回的,自动取出所有对应下拉项并添加到下拉单里面 dtitcd:控件名dtits:后台返回的前缀dscrtx:后台返回的后缀  
+在RecvPackScript中出现addcombo("outsfg");然后查日志看前后缀  lib.dictionary.ComboxUtil.addcombo(revMap,comboBox,prefixName,suffixName)
+y溢出下拉单fnpdid.setPrefix(lib.util.Tools.getMapKey(revMap, "prodcd", ""));
+ComboxUtil.subComboBoxItemShowFirst(this, crcycd, new String[]{"27"},"CRCYCD");
+添加下拉项并且设置下拉框
+String[] str = ComboxUtil.getComboBoxItem(this, "TRANTP");
+ComboxUtil.setComboBoxItems(this, trantp, new String[] { "% 全部" }, str);
+MEASFS是一个下拉框,前缀里包含B的的下拉框,strstr(w#MEASFS, "B") >= 0   measfs.getPrefix().contains("B")
+//自定义下拉内容前缀取后缀
+getPrefIxAndSuffix(this, new String[]{"% 全部", "0 生效", "1 失效"}, (String) map.get("status")),
+private  static String getPrefIxAndSuffix(Trade trade,String[] items,String prefix) throws Exception{
+	if(items == null || StringUtilEx.isNull(prefix)){
+		return "";
+	}
+	for(String s:items){
+		if(s.contains("-")){
+			if(prefix.equals(s.split("-",-1)[0])){
+				return s.split("-",-1)[1];
+			}
+		}else if(s.contains(" ")){
+			if(prefix.equals(s.split(" ",-1)[0])){
+				return s.split(" ")[1];
+			}
+		}
+	}
+	return "";
+  }
+// 后台返回值-前缀,获取当前界面下拉框值
+getPrefIxAndSuffix(hoststatus, lib.util.Tools.getMapKey(map, "hoststatus", "")),
+private static String getPrefIxAndSuffix(ComboBox com, String prefix) throws Exception {
+	String[] items = com.getItems();
+	for (String s : items) {
+		if (s.contains("-")) {
+			if (prefix.equals(s.split("-", -1)[0])) {
+				return s;
+			}
+		} else if (s.contains(" ")) {
+			if (prefix.equals(s.split(" ", -1)[0])) {
+				return s;
+			}
+		}
+	}
+	return "";
+}
+
+
+/**
+ * 取revMap中的key显示到窗口的表格中
+ * @param revMap	revMap后台接收的数据
+ * @param table		当前窗口的表格名称
+ * @throws Exception	
+ */
+private void showTab(Map revMap,Table table) throws Exception{
+	int listNum = Integer.valueOf(getValue(revMap, "listnm"));
+	if(listNum == 0){
+		this.pushInfo("不存在满足条件的信息,请扩大输入条件重新查询！", true);
+	}else if(listNum == 1){
+		Map<String, String> map = (Map<String, String>) revMap.get("bodrcd");
+		addRow(map,table);
+	}else{
+		ArrayList<Map<String, String>> list = (ArrayList<Map<String, String>>) revMap.get("bodrcd"); 
+		for(int i = 0; i < listNum; i++){
+			Map<String, String> listMap = list.get(i);
+			addRow(listMap, table);
+		}
+	}
+	table.setFocus();
+}
+/**
+ * 取revMap中的key添加表格的每一行
+ * @param map 	revMap接收的Map
+ * @param table 当前窗口的Tbale
+ * @throws Exception
+ */
+private void addRow(Map map, Table table) throws Exception{
+	table.addRow(-1, new String[]{
+			getValue(map, "aupworkdate"),
+			getValue(map, "aupserialno"),
+			getValue(map, "sendbank"),
+			getValue(map, "sender"),
+			getValue(map, "recvbank"),
+			getValue(map, "receiver"),
+			getValue(map, "note13"),
+			getValue(map, "tellerno"),
+			getValue(map, "brno")
+	});
+}
+
+//金额不大于0.00 if (!(@ &gt; 0.00))
+lib.util.TradeUtil.inputMoneyOne(this, loanam);
+	if (Double.valueOf(loanam.getValue()) <= 0.00) {
+		this.pushInfo("合同金额应大于零", true);
+		loanam.setFocus();
+	}
+//金额格式化
+lib.util.TradeUtil.inputMoneyOne(this, ltgram);
+MoneyUtil.formatMoney(ltgram.getValue(),2);
+	
+//inputtwice();处理inputtwice  DDFUND  SVCDHQ
+if(lib.util.TradeUtil.inputTwice(this, tranam)){
+	lib.util.TradeUtil.inputMoneyOne(this, tranam);
+	lib.util.TradeUtil.inputMoneyTwo(this, tranam);
+	query_FEDTFL();
+}
+if(TradeUtil.inputTwice(this, tranam)){
+	TradeUtil.checkAmt(this, tranam);
+	//根据折算金额计算代理标志
+	Map<String, String> sendMap = GuiUtil.getDataFromUI(this);
+	sendMap.put("prpant", "svcdhq");
+	Map revMap = TradeMainCommunication.SubmitExecute_Map(this, "qragfg", null, sendMap, false);
+	String errorCode = (String) revMap.get("errorCode");
+	String errorMsg = (String) revMap.get("errorMsg");
+	if (!GlobalMacro.G_前置成功.equals(errorCode)) {
+		this.pushError(errorCode + "-" + errorMsg, true);
+		return;
+	}
+	if (!"".equals(revMap.get("pckgsq"))) {
+		dispno.setFocus();
+		return; 
+	}
+
+}
+/**
+ * Map中取值后设置默认值
+ */
+public String getAmValue(Map<?, ?> map, String key, String defaultV) {
+	return "".equals(Tools.getMapKey(map, key, defaultV)) ? defaultV : Tools.getMapKey(map, key, defaultV);
+}
+/**
+ * 金额格式化
+ * @throws Exception 
+ */
+public String getJE(String str,String num) throws Exception {
+	return lib.util.MoneyUtil.formatMoney(str, num);
+}
+/**
+ * 利率格式化
+ */
+public String getLL(String str) {
+	if (!"".equals(str)) {
+		return String.format("%.7f",Double.parseDouble(str.replace(",", "")))+ "%";
+	} else {
+		return str;
+	}
+}
+//子交易流水相关
+public boolean preSubmit() throws Exception {
+	IMaindtl imaindtl = (IMaindtl) MaindtlManager.getAdapter(IMaindtl.class);
+	imaindtl.insertSubMaindtl(this, subMaindtlBean(null));
+	return true;
+}
+public SubMaindtlBean subMaindtlBean(Map dataMap) throws Exception{
+	SubMaindtlBean subMaindtlBean = new SubMaindtlBean();
+	subMaindtlBean.setTranscode("qucorp");//交易码
+	subMaindtlBean.setAcctno(acctno.getText());//账号
+	subMaindtlBean.setUsername(acctna.getText());//户名
+	subMaindtlBean.setUsername(acctInfo.get("acctna"));//户名
+	subMaindtlBean.setAmount(tranam.getValue());//金额
+	subMaindtlBean.setCurrtype(crcycd.getPrefix());//币种
+	subMaindtlBean.setVouchno(dcmtno.getText());//凭证号码
+	subMaindtlBean.setVouchtype(dcmttp.getPrefix());//凭证类型	
+	subMaindtlBean.setIdcode(certno.getText());//证件号码
+	subMaindtlBean.setIdtype(certtp.getText().splfit("-")[0]);//证件类型
+	subMaindtlBean.setAgidcode(agidcode);//代理人证件号码
+	subMaindtlBean.setAgidtype(agidtype);//代理人证件类型
+	return subMaindtlBean;
+}
+
+//勾兑相关
+sendMap.put("checkstring", lib.util.Tools.mapToVertiString(coostMap()));//勾兑
+//勾兑要素
+public Map coostMap() throws Exception {
+	LinkedHashMap<String, String> map = new LinkedHashMap<String, String>();
+	map.put("账号", acctno.getText());
+	map.put("收付方向", amntcd.getText());
+	map.put("币种", crcycd.getText());
+	map.put("金额", tranam.getText());
+	return map;
+}
+
+//表格相关
+String[] datas = table_2XXXXXXQRCBKP.getRow(table_2XXXXXXQRCBKP.getRowCount()-1);//翻页取最后一行内容
+String[] datas = table_1XXXXXXSLCHCK.getRow(table_1XXXXXXSLCHCK.getSelectedRowIndex());//取选中行内容
+datas[0].split("-")[0]
+
+//fm_接收表格
+1. AMNTCD 3 1 C y s AMNTCD|AMNTCD_CD     ComboxUtil.getPrefixAndSuffixs(this, (String) map.get("amntcd"),"AMNTCD","AMNTCD_CD"),
+2. ENVELP 15  1 L y s script ((ENVELP=="1") ? "密码信封" : ((ENVELP=="2") ? "账户激活" : ENVELP))
+	 "1".equals(map.get("envelp").toString())?"密码信封":("2".equals(map.get("envelp").toString())?"账户激活":(map.get("envelp").toString())),
+3. TRANAM	13  1  R y s script str(double(TRANAM),"%,15.2lf")  abf文件选择：右对齐-数据格式改为 "999,999,999,999,999.99"
+4. g#xx.pWin				MoneyUtil				(String) map.get(MoneyUtil.formatMoney("acmlbl", "0")),	
+		
+		
+1			//发送表格事件sendList  trade.czbk.czqywy.signmanage.qywy_33.Qywy_33
+		Map<String,Object> sendMap = new HashMap<String, Object>();
+		sendMap.putAll(GuiUtil.getDataFromUI(this));
+		sendMap.put("checkstring", Tools.mapToVertiString(coostMap()));
+		sendMap.put("bodrcd", getTbValue());
+		sendMap.put("listnm", String.valueOf(table_1XXXXXXSLCHCK.getRowCount()));
+		sendMap.put("userid", lib.util.TellerinfoUtil.getTellerNo(this));
+		ResultSet rs = TradeMainCommunication.SubmitExecute_ResultSet(this, "cncvck", null, sendMap, false);
+		return rs;
+		
+2		Map revMap = rs.getDataMap();
+		if(TradeMainCommunication.getResultErrorCode(this, revMap,true) >= 0){
+			return;
+		}
+		pushInfo("交易成功",true);
+		exit(0);
+		
+3		public ArrayList getTbValue() throws Exception{
+			ArrayList<Map> list = new ArrayList<Map>();
+			int rowNum = table_1XXXXXXSLCHCK.getRowCount();
+			for(int i=0;i<rowNum;i++){
+				Map _temMap = new HashMap();
+				String[] data = table_1XXXXXXSLCHCK.getRow(i);
+				_temMap.put("dcmttp", data[0].split("-")[0]);
+				_temMap.put("initno", data[1]);
+				_temMap.put("finlno", data[2]);
+				_temMap.put("dcmtnm", data[3]);
+				_temMap.put("usdcnm", data[4]);
+				list.add(_temMap);
+			}
+			return list;
+		}	
+		
+		//处理表格返回事件
+		Map m = this.syncOpenTrade(TMDFROZ.class.getName(), "帐户冻结、止付信息查询/维护",importVar, new String[] { "#result", "#Maindtl_STATUS_BATCHNO" }, this.OPEN_TRADE_STYLE_WINDOW);
+		if(m.containsKey("result")&&"true".equals(m.get("result"))){
+			table_2XXXXXXDDFUND.removeRow(table_2XXXXXXDDFUND.getSelectedRowIndex());
+		}
+		//postSubmit中执行
+		putStoreData("result", "true");
+		exit(0);	
+		
+		//表格双击事件
+		public void table_2XXXXXXQANO01_OnRowDoubleClick()  throws Exception{
+			if(table_2XXXXXXQUCORP.getRowCount() <= 0 || table_2XXXXXXQUCORP.getSelectedRowIndex() == -1){
+				return;
+			}
+			Map<String, String> importVar = new HashMap<String, String>();
+			importVar.put("#isCascadingTrade", "false");
+			importVar.put("#" + MaindtlDataType.T_前台主流水表 + "_BATCHNO", getStoreData(MaindtlDataType.T_前台主流水表 + "_BATCHNO"));
+			importVar.put("#TRADECODE", getStoreData("TRADECODE"));
+			importVar.put("#TRADETYPE", getStoreData("TRADETYPE"));
+			importVar.put("#TRADENAME", getStoreData("TRADENAME"));
+			importVar.put("#custno", table_2XXXXXXQUCORP.getCellContent(table_2XXXXXXQUCORP.getSelectedRowIndex(), 0));
+			String[] exportVar = new String[]{"#result","#Maindtl_STATUS_BATCHNO"}
+			Map m = this.syncOpenTrade(TDECORP.class.getName(), "对公客户详细信息", importVar, exportVar, this.OPEN_TRADE_STYLE_WINDOW);
+			if(m.containsKey("#Maindtl_STATUS_BATCHNO") && lib.util.StringUtilEx.isNotEmpty(m.get("#Maindtl_STATUS_BATCHNO"))){
+				putStoreData("Maindtl_STATUS_BATCHNO", (String)m.get("#Maindtl_STATUS_BATCHNO"));
+			}
+			if(m.containsKey("result")&&"true".equals(m.get("result"))){
+				table_2XXXXXXDDFUND.removeRow(table_2XXXXXXDDFUND.getSelectedRowIndex());
+			}
+			if ("true".equals(m.get("#result").toString())) {
+				instrt.setValue(m.get("#instrt").toString());
+			}
+		}
+		
+		//表格删除数据
+		public void DeleteScript() throws Exception{
+			gd_flname.setText(table_2XXXXXXQANO01.getCellContent(table_2XXXXXXQANO01.getSelectedRowIndex(), 8));
+			if (table_2XXXXXXQANO01.getRowCount() == 0) {
+				pushInfo("没有记录可删除！");
+				return;
+			}
+			if (table_2XXXXXXQANO01.getSelectedRowIndex() == -1) {
+				pushInfo("请选择一条记录进行删除！");
+				return;
+			}
+			if(isUserConfirmed("是否继续撤销批次[%s]数据信息?", "确定", "取消", true)){
+				Map<String,String> sendMap=GuiUtil.getDataFromUI(this);
+				sendMap.put("inrsno", inrsno.getText());
+				try {
+					Map revMap = TradeMainCommunication.SubmitExecute_Map(this, "bachcc", null, sendMap, false);
+					if(TradeMainCommunication.getResultErrorCode(this, revMap,true) >= 0){
+						return;
+					}
+					table_2XXXXXXQANO01.removeRow(table_2XXXXXXQANO01.getSelectedRowIndex());
+				} catch (Exception e) {
+					throw e;
+				}	
+			}
+		}
+		
+		
+		
+		//翻页事件PageDown
+		<script type="WINDOW" name="SendPackScript_QRAGNT" value='s#PGTRDT=d#TRANDT;s#PGTRSQ=d#TRANSQ;'/>
+		<script stringID="2XXXXXXQRAGNT" type="UI_VTLIST" name="PageDownScript" value='query("QRAGNT");'/>	
+1		boolean isPageDown = false;
+2		if(isPageDown){
+			String[] datas = table_2XXXXXXQRCBKP.getRow(table_2XXXXXXQRCBKP.getRowCount()-1);
+			sendMap.put("commsq", datas[0]);
+			sendMap.put("commnm", datas[1]);
+			sendMap.put("pgtsdt", datas[0]);
+			sendMap.put("pgblsq", datas[1]);
+		}
+		if (isPageDown) {
+			Map<String, String> items = lib.util.TableUtil.getTableRowMap(this,this.table_2XXXXXXQRSCLN,
+					table_2XXXXXXQRSCLN.getRowCount() - 1);
+			sendMap.put("billdt", items.get("billdt"));
+			sendMap.put("billsq", items.get("billsq"));
+		}
+3		//PageDownScript事件
+		public void PageDownScript() throws Exception{
+			if(table_2XXXXXXQANO01.getRowCount() == 0){
+				return;
+			}
+			isPageDown=true;
+			commsubmit();
+		}	
+
+		
+		//查询全部数据QueyAll
+1		boolean isQueyAll = false;//是否查询全部数据
+2		if(listNum == 15 && isQueyAll){
+			isPageDown = true;
+		}else{
+			isQueyAll = false;
+		}
+3		public void eddate_OnBlur()  throws Exception{
+			table_2XXXXXXQRACVC.clear();
+			isPageDown = false;
+			isQueyAll = false;
+			query();
+		}
+4		public void button_查询全部_OnClick()  throws Exception{
+			if("".equals(acctno.getText().trim())){
+				this.pushInfo("请输入帐/卡号,再查询全部交易明细",true);
+				return;
+			}
+			table_2XXXXXXQRACVC.clear();
+			isPageDown = false;
+			isQueyAll = true;
+			button_查询全部.setEnabled(false);
+			commsubmit();
+		}
+5		public  void PageDownScript() throws Exception{
+			if(table_2XXXXXXQRACVC.getColumnCount() == 0){
+				return;
+			}
+			isPageDown = true;
+			isQueyAll = false;
+			commsubmit();
+		}
+	
+
+	
+		//accountMessage顶部栏Fragment  参考TSVCDHQ TJF2011 CBKPCK LOSSMP CBKPCK 文本方式打开,复制,粘贴 
+1   <bean feature="Fragment">
+        <entry key="layout#layout" value="xy" type="String"/>
+        <entry key="constraints#xy_location" value="30,10" type="String"/>
+        <entry key="constraints#xy_size" value="670,75" type="String"/>
+        <entry key="id" value="fragment1" type="String"/>
+        <entry key="code" value="" type="String"/>
+        <entry key="enable" value="true" type="Boolean"/>
+        <entry key="dictionary_key" value="" type="String"/>
+    </bean>
+2 	public Fragment fragment1 = new Fragment(this, "fragment1");
+		public Map<String,String> acctInfo = new HashMap<String,String>();
+3   this.fragment1.embed(ACCOUNT_MESSAGE1.class.getName());
+		Trade trade = this.fragment1.getTradeObject(ACCOUNT_MESSAGE1.class);
+		if (trade == null) {
+			this.showInfo("fragment trade is null!");
+			return;
+		}
+4.	修改tradeInit中的名字,复制包名过来。去fragment交易片段中找对应的文件,复制包名。
+5.	//处理数据
+		this.fragment1.embed(TACCOUNT_MESSAGED.class.getName());
+		Trade trade = this.fragment1.getTradeObject(TACCOUNT_MESSAGED.class);
+		if (trade == null) {
+			this.showInfo("fragment trade is null!");
+			return;
+		}
+		TACCOUNT_MESSAGED acctObject = (TACCOUNT_MESSAGED)trade;
+		Map<String,String> sendMap = new HashMap<String,String>();
+		sendMap.put("acctno", acctno.getText());
+		Map revMap = acctObject.queryAcctInfo(sendMap);
+		if(!"".equals(lib.util.Tools.getMapKey(revMap, "dcmttp", ""))){
+			GuiUtil.enable(new Component[]{dispno,dcmttp,dcmtno}, false);
+		}
+		acctInfo = acctObject.getAcctInfo();
+		crcycd.setPrefix((String) revMap.get("crcycd"));
+		
+		
+		
+		
+		//NoEncryPassword OPGSDB 
+		<script name='NoEncryPassword' type='WINDOW' value='OT_TRANPW|'/>
+		if (OT_DRAWFS=="A";||OT_DRAWFS=="F";) {(call("inputPwd_pinkey",OT_ACCTNO,1)==1)?0:(curto("OT_TRANPW");return(1););}
+		if (!"".equals(this.ot_tranpw.getText())) {
+			sendMap.put("needpwd", "Y");
+			sendMap.put("zmackey", getStoreData("pseqno"));
+			sendMap.put("zpwdfrm", "front");
+			sendMap.put("zpwdfd1", this.ot_tranpw.getText());
+			sendMap.put("zacctno1", this.ot_acctno.getText());
+		}
+		public void ot_tranpw_OnBlur() throws Exception {
+			if ("A".equals(ot_drawfs.getPrefix())
+				|| "F".equals(ot_drawfs.getPrefix())) {
+			String s[] = Pin.getPinTwo(this, 0, ot_acctno.getText().trim(),
+					"等待用户输入密码......");
+			if (s[0].equals(s[1])) {
+				this.ot_tranpw.setText(s[0]);
+			} else {
+				pushInfo("两次输入密码不一致,请重新输入！", true);
+				this.ot_tranpw.setText("");
+				this.ot_tranpw.setFocus();
+				return;
+			}
+		}
+	}
+
+		
+	
+	//ResultSet方法
+	public ResultSet submit() throws Exception {
+		Map<String,String> sendMap = new HashMap<String, String>();
+		sendMap.putAll(GuiUtil.getDataFromUI(this));
+		sendMap.put("rcrdnm", "15");
+		if(isPageDown){
+			String datas[] = table_2XXXXXXQRBILL.getRow(table_2XXXXXXQRBILL.getRowCount()-1);
+			sendMap.put("pgtsdt", datas[0]);
+			sendMap.put("pgblsq", datas[13]);
+		}
+		try {
+			ResultSet rs = TradeMainCommunication.SubmitExecute_ResultSet(this,"qrbill", null, sendMap, false);
+			return rs;
+		} catch (Exception e) {
+			throw e;
+		}
+	}	
+	//postSubmit方法
+	public void postSubmit(ResultSet rs) throws Exception {
+		Map revMap = rs.getDataMap();
+		if(TradeMainCommunication.getResultErrorCode(this, revMap,true) >= 0){
+			return;
+		}
+		Map dataMap = rs.getDataMap();
+		int listNum = Integer.valueOf((String) dataMap.get("listnm"));
+		if(listNum==0){
+			this.pushInfo("不存在满足条件的信息,请扩大输入条件重新查询！",true);
+			return;
+		}
+		if(listNum > 0){
+			if(listNum==1){
+				Map<String,String> map = (Map<String,String>)dataMap.get("bodrcd");
+				tabData(table_2XXXXXXQRBILL,map);
+			}else{
+				List<Map<String,String>> listMap = (List<Map<String,String>>)dataMap.get("bodrcd");
+				for(int i=0;i<listMap.size();i++){
+					Map map = (Map) listMap.get(i);
+					tabData(table_2XXXXXXQRBILL,map);
+				}
+			}
+			table_2XXXXXXQRBILL.setFocus();
+			table_2XXXXXXQRBILL.setSelectedRowIndex(0);
+		}
+	}
+	public void tabData(Table table, Map map) throws Exception {
+		table.addRow(-1, new String[] {
+				(String) map.get("commnm"),
+				(String) map.get("acctno"),
+				(String) map.get("acctna"),
+				ComboxUtil.getPrefIxAndSuffix(this, "AMNTCD", (String) map.get("amntcd")),
+				(String) map.get("tranam"),
+				ComboxUtil.getPrefIxAndSuffix(this, "CRCYCD", (String) map.get("crcycd")),
+				ComboxUtil.getPrefIxAndSuffix(this, "DCMTTP_TRAN", (String) map.get("dcmttp")),
+				(String) map.get("dcmtno"),
+				(String) map.get("ortrdt"),
+				(String) map.get("invodt"),
+				(String) map.get("primac"),
+				(String) map.get("stdate"),
+				(String) map.get("eddate"),
+				ComboxUtil.getPrefIxAndSuffix(this, "COMMST", (String) map.get("transt")),
+				(String) map.get("acmlbl"),
+				(String) map.get("instrt"),
+				(String) map.get("smrytx")
+				});
+	}
+	CUSTNO=r#.CUSTNO;
+	revData(map);
+	public void revData(Map map){	
+		custno.setText((String)map.get("custno"));
+		custcn.setText((String) map.get("custcn")); 
+		custen.setText( (String) map.get("custen"));
+		certno.setText((String) map.get("certno"));
+		custst.setPrefix((String) map.get("custst"));
+		custin.setPrefix((String) map.get("custin"));
+		certtp.setPrefix((String) map.get("certtp"));
+		liisau.setPrefix((String) map.get("liisau"));
+		corptp.setPrefix((String) map.get("corptp"));
+		certtp1 = (String) map.get("certtp");
+		certno1 = (String) map.get("certno");
+		finatp.setPrefix((String) map.get("finatp"));
+
+	}	
+		
+		//删除事件
+		public void DeleteScript() throws Exception {
+		if (table_2XXXXXXIACMQL.getRowCount() == 0) {
+			return;
+		}
+		if (table_2XXXXXXIACMQL.getSelectedRowIndex() == -1) {
+			pushInfo("请选择一条记录进行删除！");
+			return;
+		}
+		gd_commsq.setText(table_2XXXXXXIACMQL.getCellContent(
+				table_2XXXXXXIACMQL.getSelectedRowIndex(), 0));
+		if (isUserConfirmed("是否删除该条数据?"+table_2XXXXXXIACMQL.getCellContent(table_2XXXXXXIACMQL.getSelectedRowIndex(), 0), "确定", "取消", true)) {
+			Map<String, String> sendMap = GuiUtil.getDataFromUI(this);
+			sendMap.put(
+					"commsq",
+					table_2XXXXXXIACMQL.getCellContent(
+							table_2XXXXXXIACMQL.getSelectedRowIndex(), 0));
+			sendMap.put("checkstring", Tools.mapToVertiString(coostMap()));
+			try {
+				Map revMap = TradeMainCommunication.SubmitExecute_Map(this,
+						"cbkpdl", null, sendMap, false);
+				if(TradeMainCommunication.getResultErrorCode(this, revMap,true) >= 0){
+					return;
+				}
+				table_2XXXXXXIACMQL.removeRow(table_2XXXXXXIACMQL
+						.getSelectedRowIndex());
+			} catch (Exception e) {
+				throw e;
+			}
+
+		}
+	}
+
+		//截取字符串
+		(DCMTNM = int(substr(FINLNO,strlen(FINLNO)-7,7)) - int(substr(INITNO,strlen(FINLNO)-7,7)) + 1);
+		String _finlno = finlno.getText().trim();
+		if(_finlno.length() < 7){
+			dcmtnm.setText("1");
+		}else{
+			String _initno = initno.getText().trim();
+			if("".equals(_initno)){
+				_initno = "0";
+			}
+			int fino = Integer.valueOf(_finlno.length()-7);
+			int d = 0;
+			if(_initno.length() <= 7){
+				if(_initno.length()-1 < fino){
+					d = Integer.valueOf(_finlno.substring(_finlno.length()-7))+1;
+				}else{
+					d = Integer.valueOf(_finlno.substring(_finlno.length()-7))-Integer.valueOf(_initno.substring(_finlno.length()-7))+1;
+				}
+				dcmtnm.setText(String.valueOf(d));
+			}else{
+				if(_initno.length()-1 < fino){
+					d = Integer.valueOf(_finlno.substring(_finlno.length()-7))+1;
+				}else if(_initno.length()-1 <= fino+7){
+					d = Integer.valueOf(_finlno.substring(_finlno.length()-7))-Integer.valueOf(_initno.substring(_finlno.length()-7))+1;
+				}else{
+					d = Integer.valueOf(_finlno.substring(_finlno.length()-7))-Integer.valueOf(_initno.substring(_finlno.length()-7,_finlno.length()))+1;
+				}
+				dcmtnm.setText(String.valueOf(d));
+			}
+		}
+		//自定义查询
+		public void query_QUCORP() throws Exception {
+		Map<String,String> sendMap = new HashMap<String,String>();
+		sendMap.put("custno", getStoreData("custno"));
+		sendMap.put("outsfg", "53");
+//		sendMap.put("certtp", "");//为空的数据可以不发送
+		/* trade:交易句柄        prcscd:前端请求码          iFileName:I表,若该参数为"pack",表示从界面上打包数据 
+		   sendMap:上送报文  autoUnPack--自动拆包标志,true:拆包 false:不拆包*/
+		ResultSet rs = TradeMainCommunication.SubmitExecute_ResultSet(this,
+				"qucorp", null, sendMap, false);
+		Map revMap = rs.getDataMap();
+		if(TradeMainCommunication.getResultErrorCode(this, revMap,true) >= 0){
+			return;
+		}
+		custno.setEnabled(false);
+		custst.setEnabled(false);
+		corptp_OnSelectionChanged();
+		certtp_OnSelectionChanged();
+		custin_OnSelectionChanged();
+		Map dataMap = rs.getDataMap();
+		int listNum = Integer.valueOf((String) dataMap.get("listnm"));
+		if(listNum==0){
+			this.pushInfo("不存在满足条件的信息,请扩大输入条件重新查询！",true);
+			return;
+		}else if(listNum == 1){
+			Map<String,String> map = (Map<String,String>)dataMap.get("bodrcd");
+			revData(map);
+
+		}else{
+			List<Map<String,String>> listMap = (List<Map<String,String>>)dataMap.get("bodrcd");
+			revData(listMap.get(0));
+		}
+	}
+		
+		//读卡
+		if ("1".equals(readst.getPrefix()) || "2".equals(readst.getPrefix())) {
+			String b = "";
+			if ("1".equals(readst.getPrefix())) {
+				b = "0";
+			}
+			if ("2".equals(readst.getPrefix())) {
+				b = "1";
+			}
+
+			trade.applib.ICCardlib.readSecondTrack(this, b, dispno);
+			putStoreData("mgntcd", "000000");
+		} else if ("3".equals(readst.getPrefix())) {
+			Map<String, String> msfInfo = Msf.readCardInfo(this, 0);
+			if (msfInfo == null) {
+				pushInfo("读取凭证信息失败!");
+				dispno.setFocus();
+				return;
+			}
+			dispno.setText(msfInfo.get("cardNo"));
+			if ("CARD".equals(msfInfo.get("TRACK_TYPE"))|| "ICCARD".equals(msfInfo.get("TRACK_TYPE")))
+			{
+			} else {
+				pushInfo("读取凭证信息失败!");
+				dispno.setText("");
+				return;
+			}
+		}
+
+		
+		//打印相关	
+		取后缀：printMap.put("S_dcmttp", dcmttp.getSuffix());		
+		Q1：****   e 34   285  s script ((r#TRANSQ=="")?"":("流水号:　" + r#TRANSQ))
+		if (!StringUtilEx.isNull((String) dataMap.get("transq"))) 
+		{
+			printMap.put("S_transq","流水号:" + (String) dataMap.get("transq"));
+		}
+		Q2：//"交易金额："+parm("CRCYCDPRT",w#CRCYCD)+str(double(w#TRANAM),"%,.2lf")
+		String s = ComboxUtil.getSuffixitem(this, "CRCYCDPRT", crcycd.getPrefix());
+		printMap.put("S_AMOUNT", s + tranam.getValue());
+		printMap.put("S_crcycdprt", crcycd.getSuffix()+ tranam.getValue());//三种实现方式,上边为第一种
+		printMap.put("S_tranam)", s + new DecimalFormat("#.00").format(String.valueOf(Double.valueOf(this.tranam.getValue()))));
+		
+		if(!getStoreData("finatp").equals(finatp.getPrefix())){//金融机构分类标准
+			printMap.put("S_finatp", ComboxUtil.getSuffixitem(this, "FINATP", getStoreData("finatp")));
+			printMap.put("S_finatp2", ComboxUtil.getSuffixitem(this, "FINATP", (String) dataMap.get("finatp")));
+		}
+		if(!"".equals(custen.getText())){
+			printMap.put("S_custen", "客户英文名称:"+custen.getText());
+		}
+		
+		//多个打印表 CBKCOR 综合业务->通用账务处理->账务冲账   CNSLCK
+		//prePrint
+		Map<String,Object> printMap = new HashMap<String,Object>();
+		Map dataMap = rs.getDataMap();
+		printMap.putAll(dataMap);
+		ArrayList<String> ft = new ArrayList<String>();
+		ArrayList<String> fp = new ArrayList<String>();
+		ft.add("dg_strike_cbkcor");
+		ft.add("dg_misprcs_cbkcor");
+		fp.add("冲账标记");
+		fp.add("错账处理凭证");	
+		printMap.put("ftable", ft);// 打印名
+		printMap.put("fprompt", fp);// 打印提示
+		return printMap;
+		//print
+		Map printMap = rs.getDataMap();
+		ArrayList<String> ft = (ArrayList)printMap.get("ftable");
+		ArrayList<String> fp = (ArrayList)printMap.get("fprompt");
+		for(int i=0;i<ft.size();i++){
+			PrintDataPrt.printprt(this, null, printMap, ft.get(i), "1", "0", "4", fp.get(i));
+		}
+		exit(0);
+	
+
+	//自定义S_modifyInfo
+**** e ZSC10      79   s script  " "
+---- e 0    0   s  script len=0
+****    e  Z      80  s script (r#.MATNTP=="证明类别") ? ( "证明类别"+":(修改前)"+parm("IDTFTPFZ",r#.FRIMAG)+" --> "+"(修改后)"+parm("IDTFTPFZ",r#.EDIMAG) ) : 
+
+**** e  C10   80  s   script  len=len + substrlen( (r#.MATNTP + ":(修改前)  " + r#.FRIMAG +" --> "+"(修改后)"+ r#.EDIMAG ),0,90,"@msg","cn");@msg
+**** e  C10   80 s   script   len=len + substrlen( (r#.MATNTP + ":(修改前)  " + r#.FRIMAG +" --> "+"(修改后)"+ r#.EDIMAG ),90,180,"@msg","cn");@msg
+
+**** e ZE    300  s script ""
+		Map<String, String> printMap = new HashMap<String, String>();
+		Map dataMap = rs.getDataMap();
+		printMap.putAll(dataMap);
+		if (!StringUtilEx.isNull((String) dataMap.get("transq"))) {
+			printMap.put("S_transq", "流水号:" + (String) dataMap.get("transq"));
+		}
+		printMap.put("S_frsptp", frsptp.getSuffix());
+		String S_modifyInfo = "";
+		int listNum = Integer.valueOf((String) dataMap.get("listnm"));
+		if (listNum == 1) {
+			Map<String, String> getMap = (Map<String, String>) dataMap
+					.get("bodrcd");
+			S_modifyInfo = (String) getMap.get("matntp") + ":(修改前)"
+					+ (String) getMap.get("frimag") + "--> (修改后)"
+					+ (String) getMap.get("edimag");
+		}
+		if (listNum > 1) {
+			List<Map<String, String>> map = (List<Map<String, String>>) dataMap
+					.get("bodrcd");
+			for (int i = 0; i < map.size(); i++) {
+				Map getMap = (Map) map.get(i);
+				String temp = (String) getMap.get("matntp") + ":(修改前)"
+						+ (String) getMap.get("frimag") + "--> (修改后)"
+						+ (String) getMap.get("edimag");
+				String temp_sub = "";
+				int temp_bytlength = temp.getBytes().length;
+				int times = 0;
+				if (temp_bytlength % 76 == 0) {
+					times = temp_bytlength / 76;
+				} else {
+					times = temp_bytlength / 76 + 1;
+				}
+				if (!"".equals(S_modifyInfo)) {
+					S_modifyInfo = S_modifyInfo + "\n";
+				}
+				for (int j = 0; j < times; j++) {
+					temp_sub = "";
+					temp_sub = StringUtilEx.subFirstBybyte(temp, 76);
+					temp = temp.substring(temp_sub.length(), temp.length());
+					if (!"".equals(temp_sub)) {
+						if (!"".equals(S_modifyInfo)) {
+							S_modifyInfo = S_modifyInfo
+									+ "\n                    " + temp_sub;
+						} else {
+							S_modifyInfo = temp_sub;
+						}
+					}
+				}
+			}
+		}
+		printMap.put("S_modifyInfo", S_modifyInfo);
+		printMap.put("ftable", "spec_mdfroz");// 打印名
+		printMap.put("fprompt", "业务受理单");// 打印提示
+		return printMap;
+		
+		
+		//打印表格
+		if (table_2XXXXXXQRBILL.getRowCount() == 0) {
+			pushInfo("无数据可打印!");
+			return;
+		}
+		Map printMap = new HashMap();
+		int rowNum = table_2XXXXXXQRBILL.getRowCount();
+		int colNum = table_2XXXXXXQRBILL.getColumnCount();
+		String[] printStr = new String[rowNum * colNum];
+		for (int i = 0; i < rowNum; i++) {
+			printStr[i * colNum + 0] = table_2XXXXXXQRBILL.getRow(i)[0];
+			printStr[i * colNum + 1] = table_2XXXXXXQRBILL.getRow(i)[1];
+			printStr[i * colNum + 2] = table_2XXXXXXQRBILL.getRow(i)[2];
+			printStr[i * colNum + 3] = table_2XXXXXXQRBILL.getRow(i)[3];
+			printStr[i * colNum + 4] = table_2XXXXXXQRBILL.getRow(i)[4];
+			printStr[i * colNum + 5] = table_2XXXXXXQRBILL.getRow(i)[5];
+			printStr[i * colNum + 6] = table_2XXXXXXQRBILL.getRow(i)[6];
+			printStr[i * colNum + 7] = table_2XXXXXXQRBILL.getRow(i)[7];
+			printStr[i * colNum + 8] = table_2XXXXXXQRBILL.getRow(i)[8];
+			printStr[i * colNum + 9] = table_2XXXXXXQRBILL.getRow(i)[9];
+			printStr[i * colNum + 10] = table_2XXXXXXQRBILL.getRow(i)[10];
+			printStr[i * colNum + 11] = table_2XXXXXXQRBILL.getRow(i)[11];
+			printStr[i * colNum + 12] = table_2XXXXXXQRBILL.getRow(i)[12];
+			printStr[i * colNum + 13] = table_2XXXXXXQRBILL.getRow(i)[13];
+		}
+		printMap.put("count", rowNum);
+		PrintDataPrt.printprt(this, null, printMap, "dg_outside_tran_list", "1", "0", "0", "表外明细");
+		
+		小窗口
+		TACCOUNT_MESSAGEG
+		this.fragment1.embed(TACCOUNT_MESSAGEG.class.getName());
+		Trade trade = this.fragment1.getTradeObject(TACCOUNT_MESSAGEG.class);
+		if (trade == null) {
+			this.showInfo("fragment trade is null!");
+			return;
+		}
+		TACCOUNT_MESSAGEG acctObject = (TACCOUNT_MESSAGEG)trade;
+		Map<String,String> sendMap = new HashMap<String,String>();
+		sendMap.put("lncfno", lncfno.getText());
+		Map revMap = acctObject.queryQrctcfInfo(sendMap);
+		crcycd.setPrefix(lib.util.Tools.getMapKey(revMap, "crcycd", ""));
+		crcycd.setEnabled(false);
+		this.putStoreData("crcycd", getValue(revMap, "crcycd",""));//币种
+		this.putStoreData("lncfna", getValue(revMap, "lncfna",""));//客户名称
+		this.putStoreData("lncfno", getValue(revMap, "lncfno",""));//借 据 号
+		this.putStoreData("disbdt", getValue(revMap, "disbdt",""));//放款日期
+		this.putStoreData("matudt", getValue(revMap, "matudt",""));//到期日期
+		this.putStoreData("loancn", getValue(revMap, "loancn",""));//合 同 号
+		this.putStoreData("initam", getValue(revMap, "initam",""));//借据金额
+		this.putStoreData("corpbl", getValue(revMap, "corpbl",""));//借据余额
+		this.putStoreData("prodtp", getValue(revMap, "prodtp",""));//贷款类别
+		this.putStoreData("dpacno", getValue(revMap, "dpacno",""));//结算账号
+		this.putStoreData("cntrir", getValue(revMap, "cntrir",""));//利    率
+		this.putStoreData("prodna", getValue(revMap, "prodna",""));//产品名称
+		this.putStoreData("ovduir", getValue(revMap, "ovduir",""));//逾期利率
+		this.putStoreData("cmpdir", getValue(revMap, "cmpdir",""));//复息利率
+		this.putStoreData("retnfs", getValue(revMap, "retnfs",""));//还款方式
+		this.putStoreData("intrvl", getValue(revMap, "intrvl",""));//计息周期
+		this.putStoreData("lncntp", getValue(revMap, "lncntp",""));
+		this.putStoreData("rpedtm", getValue(revMap, "rpedtm",""));//已还期数
+		this.putStoreData("unrptm", getValue(revMap, "unrptm",""));//未还期数
+
+--------------------------------------华丽的分割线--------------------------------------------
+python转码
+import sys 
+reload(sys) 
+sys.setdefaultencoding('utf8') 
+sys.getdefaultencoding()
+
+数据库快捷输入配置
+s=SELECT
+f=FROM
+w=WHERE
+sf=SELECT T.*,T.ROWID FROM
+sfw=SELECT T.*,T.ROWID FROM WHERE
+a=AND
+o=ORDER BY
+g=GROUP BY
+t=T.
+
+赞同FBS02秋游账务清单
+起止时间：2016.09.24-2016.09.25 
+起止地点：东莞-清远
+行程主题：FBS02秋游(两天一夜游)
+参与人员：刘慈勇、梁越宁、李慧林、许德琪、陈星、刘杰、许心良、何小高、谭华燕、
+					谭张祯、莫志杰、施俞、李梓华、孙志谊、郑基钦、黄海兰、张志杰(共17人)
+行程路线：玄真旅游度假区CS室内野战、玄真漂流、银盏森林温泉、入住四星金富豪酒店、乘船畅游小北江、花卉小镇鱼疗、飞来湖航拍
+预算费用：538*17=9146+90(住宿)=9236+500(食品)=9736 加90是因为之前人数16,加多一个人补的住宿费差价。加500是游玩过程中零食和水的预算。
+实际费用：梁继雄7000 刘慈勇3000 谭张祯共收款项10000 
+					9236-595(旅行社返款)+364(食品)+110(水)+22(快递合同11+收据11)=9137 
+					和旅行社拿到的实际价格是一个人500整(去除导游费、介绍费),一个人3块税点另算,返款35*17=595
+发票金额：旅游费9236 食品524.5 合计9760.5
+这家旅行社性价比还不错,身边有朋友有意向的可以直接联系,公司法人,副总经理,黄敬华：13712889510
+
+赞同16年年会合唱队形：
+朱凯(合唱)、 陈永顺(合唱)、 黄永鹏(合唱)、 黄泽(合唱)、   李文成(合唱)、 刘杰(独唱2)、  黄志城(合唱)、 罗天骄(合唱)、 张中元(合唱)、
+龙超(合唱)、 储召宝(合唱)、 许心良(独唱4)、陈秋(合唱)、   莫志杰(独唱4)、潘兴艺(合唱)、 陈星(独唱4)、  段金龙(合唱)、 谭旭(合唱)、 黄文驰(合唱)
+施俞(独唱1)、唐思源(独唱2)、方孔球(独唱3)、郑基钦(独唱1)、李梓华(独唱2)、梁继雄(独唱3)、谭张祯(独唱3)、林振力(独唱1)、谭华燕(独唱1)、李毅(合唱)
+麦克风传递方向：
+左线：施俞(独唱1)-唐思源(独唱2、合唱1)-方孔球(独唱3、合唱2)-许心良(独唱4、合唱3)-陈秋(合唱4)-郑基钦(合唱5二重唱)-李梓华(合唱6)
+右线：林振力(独唱1)-谭张祯(独唱3、合唱2)-陈星(独唱4、合唱3)-段金龙(合唱4)-林振力(合唱5二重唱)-谭张祯(合唱6)
+中线：李梓华(独唱2、合唱1)-梁继雄(独唱3、合唱2)-莫志杰(独唱4、合唱3)-黄泽(合唱4二重唱、合唱5) 刘杰(独唱2)-李文成(合唱4二重唱、合唱5、喊口号)
+大合唱部分编排：
+合唱四 段金龙、陈秋拿麦带领前端合唱(唱完后传麦给郑基钦、林振力二重唱)
+黄泽、李文成 二重唱 
+合唱五 黄泽、李文成拿麦带领前端合唱
+郑基钦、林振力 二重唱(唱完后传麦给李梓华和谭张祯)
+合唱六 全体成员合唱 麦克风在黄泽、李文成、李梓华和谭张祯手中,一起喊口号！
+唱出你的热情
+伸出你双手
+让我拥抱着你的梦 拥抱着你的梦
+让我拥有你真心的面孔 你真心的面孔
+让我们的赞同
+永远能够健康的成长 健康的成长
+让我们赞同明天会更好 一起唱
+
+世界辣么大,总想出去看看！本人计划国庆七天来次充实的短途旅行,现向各位家人发出邀请,希望组队同行,有兴趣的私聊！
+09.30 东莞-厦门 东莞东21:57硬卧到厦门,价格163,住宿火车,10.1早上到厦门,厦门一日游,计划鼓浪屿。
+10.01 厦门-福州 厦门一日游,晚上动车福州,1个半小时价格65,住宿福州。
+10.02 福州-温州 福州一日游,晚上乘车到温州,两个小时85,住宿温州。
+10.03 温州-杭州 温州一日游,晚上23:00硬卧到杭州,价格115,次晨到,住宿火车。
+10.04 				  杭州一日游,晚上住宿杭州。
+10.05 杭州-上海 上海一日游,早上杭州坐火车2小时到上海,价格24,晚上上海到南京,住宿南京。
+			上海-南京
+10.06 					南京一日游,晚上南京到东莞,次日晚上九点多到,东莞东火车站附近住一晚,次日坐早班公交返回公司。
+
+谈钱伤感情,我们谈饭吧,代抢过年回家火车票,24小时挂机、云抢票、网易服务器,辛苦费一顿饭(自备12306账号,不自备的加一瓶水),欢迎有需要的朋友咨询。
+不保证百分之百能抢到,抢到再请吃饭,抢不到不用请,您可以同时使用其他抢票平台抢,哪个抢到算哪个,一般其他平台抢到了我这边抢同一天的车次12306会报错的,
+有抢到的提前说一声就行了。
+
+最近微信有个消费领鼓励金的活动,鼓励金每天累积,每周清零,可用于美宜佳、天福等超市购物抵扣。
+每周日到周四使用微信支付在天福、美宜佳等店铺消费大于2元就可以获得鼓励金,共累积5天,周六日可用于消费,每周会清零,不累积。
+基本上每周可以领约5元的鼓励金,我现在提供一个平台,主要用来刷商家,在平台消费就相当于在这些商家消费,会获得鼓励金。
+平台的使用费是0.6%,每一百元手续费6毛钱。每次刷5元,每天1次,共刷5次,25元,手续费是1毛5,每周0.15元的成本净赚5元。
+刷完后付款的资金现结,你刷完后,我马上转钱给你,可以是支付宝微信银行卡等,有兴趣的亲可以联系,微信支付支持借记卡和信用卡。
+--------------------------------------华丽的分割线--------------------------------------------
+前端二期需求：
+160908-001 关于综合前端系统二期项目全国财税库模块翻写的需求
+160908-002 关于综合前端系统二期项目结算业务模块翻写的需求
+160908-003 关于综合前端系统二期项目综合业务模块翻写的需求
+160908-004 关于综合前端系统二期项目资产业务模块翻写的需求
+160908-005 关于综合前端系统二期项目中间业务模块翻写的需求
+160908-006 关于综合前端系统二期项目现金重要单证模块翻写的需求
+160908-007 关于综合前端系统二期项目商业承兑汇票模块翻写的需求
+160908-008 关于综合前端系统二期项目清算中心模块翻写的需求
+160908-009 关于综合前端系统二期项目内部管理模块翻写的需求
+160908-010 关于综合前端系统二期项目卡部后台模块翻写的需求
+160908-011 关于综合前端系统二期项目金库业务模块翻写的需求
+160908-012 关于综合前端系统二期项目管理中心模块翻写的需求
+160908-013 关于综合前端系统二期业务新增功能的需求
+160908-014 关于综合前端系统二期项目二代支付系统模块翻写的需求
+
+常用工具（还有不常用的）说明:
+1.快捷工具:
+使在cmd中可以进行【Ctrl+v】【Shift+Insert】粘贴
+使在cmd_python中可以进行【Ctrl+v】【Shift+Insert】粘贴
+使SecureCRT可以进行【Ctrl+v】粘贴
+对于一些无法使用粘贴的地方,用【右Ctrl+v】以打字的方式进行粘贴
+粘帖并复制【Alt+v】
+复制下一行【Alt+x】
+转大写【Ctrl+F5】
+转小写【Ctrl+F6】
+打开粘贴板或选中内容的目录或文件所在目录【Ctrl+鼠标右键】
+在abIDE.exe、eclipse.exe中,一般字符与JAVA字符互转(加上转义)【Ctrl+[】【Ctrl+]】
+关闭当前目录浏览器(Explorer)【Alt+c】
+2.SVN更新
+自动更新配置的全部SVN目录。
+如每晚自动更新一般少用的目录,或有大文件的目录。
+3.工具/java/POI  eclipse工程,poi,主要有功能：
+不过需要对不同档进行配置。
+Excel接口	->	soap报文
+excel接口 ->  natp支持
+Word接口	->	soap报文
+Word接口	->	Excel接口
+AFA(NATP)_CNT(SOAP)	->	Excel接口
+
+151215-005关于对公信贷系统授信客户短信通知提醒的需求_配合_E_暂停(已更新测试,僵尸需求,到时候投产前需比对版本)
+160223-002关于移动营销平台增加交易查询与单据补打功能的需求_配合_AE_暂停_开发环境
+160301-007关于增加网银内管系统机构信息同步的需求_配合_AE_暂停_部分已SIT测试,部分未开发(等姚将优化需求)
+161018-017关于优化黄金账户解约的需求_主办_AE_暂停(听罗治华说是要取消,如果确认取消就删除该部分清单)
+160505-001黄金定投业务需求_废除 如果以后遇到测试环境和开发环境的afa,eci,数据库,定时任务还存在128(sysid)的都可以删掉
+
+161115-001关于电子渠道对非柜面转账增加金额统一检测与提示的需求_主办_AE_UAT_李梓华
+161122-006东源泰业村镇银行国库信息处理系统需求开发通知书_主办_AE_UAT_A角方孔球B角李梓华
+
+160422-001云闪付项目二期（apple pay）_配合_AE_谭张祯_开发SIT联调测试中
+160422-001云闪付项目二期_前置接口（针对多种PAY改造）_配合_E_谭张祯_开发
+161129-002东莞住宅维修资金业务系统支持批量缴款流水关联的需求书_主办_AE_UAT_A角谭张祯B角李梓华
+170327-010关于迁移自助终端功能至STM智慧柜台的需求_AE_谭张祯_配合_开发(涉及内容较多)
+
+160427-002关于在客服系统增加手机银行大众版和个人网上银行大众版注册功能的需求_配合_AE_待投产
+161115-017关于在票据系统新增资产转让核销功能的业务需求书_配合_E_UAT
+161115-022_PBLC-453_个贷系统随借随还维护需求_配合_E_UAT
+161221-001人民币贷款定价系统项目需求_配合_E_UAT
+170309-001ATMP平台升级项目_配合_E_UAT

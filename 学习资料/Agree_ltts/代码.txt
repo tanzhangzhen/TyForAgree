@@ -1,0 +1,181 @@
+一、下拉框
+第一种:
+
+<item stringID="unNameObj6" type="UI_PROMPT">
+			    <property name="top" value="3"/>
+			    <property name="left" value="2"/>
+			    <property name="height" value="01"/>
+			    <property name="width" value="2"/>
+			    <property name="text" value="证件类型"/>
+			  </item>
+				<item stringID="IDTYPE" type="UI_COMBOX">
+			    <property name="top" value="3"/>
+			    <property name="left" value="18"/>
+			    <property name="height" value="0"/>
+			    <property name="width" value="28"/>
+			    <property name="wof_flags" value="WOF_AUTO_CLEAR|WOF_BORDER|WOF_NON_SELECTABLE|"/>
+			  </item>
+
+在script中:
+<script stringID="IDTYPE" type="UI_COMBOX" name="combobox" value=" ALLNUM|DCMTTP_BOX "/>
+
+
+第二种：
+<item stringID="CRCYCD" type="UI_COMBOX">
+				<property name="top" value="5"/>
+				<property name="left" value="18"/>
+				<property name="height" value="0"/>
+				<property name="width" value="24"/>
+				<property name="wof_flags" value="WOF_VIEW_ONLY|WOF_BORDER|WOF_NON_SELECTABLE"/>
+</item>
+
+说明：StringID唯一标识，对应parm文件中的项，倘若下面script代码中无特殊规定，此处会自动加载parm文件中的项目
+
+
+第三种:
+<!--代理类型-->
+	<item stringID="STRSTATUS" type="UI_COMBOX">
+	    <property name="top" value="0"/>
+		<property name="left" value="60"/>
+		<property name="height" value="0"/>
+		<property name="width" value="27"/>
+		<property name="maxlength" value="20"/>
+		<property name="wof_flags"value="WOF_AUTO_CLEAR|WOF_BORDER"/>
+		<item name="LIST" type="UI_STRING">
+			<item name="%" type="UI_STRING">
+				<property name="text" value="% (全部)"/>
+			</item>
+			<item name="0" type="UI_STRING">
+				<property name="text" value="0 (签约)"/>
+			</item>
+			<item name="1" type="UI_STRING">
+				<property name="text" value="1 (解约)"/>
+			</item>
+			<item name="2" type="UI_STRING">
+			   <property name="text" value="2 (处理中)"/>
+			</item>
+		</item>
+	</item>
+
+第四种：
+在script中，addcombo("PRODUCTNO");
+如：
+<script name="RecvPackScript_DLYW20" type="WINDOW" value='
+      		if(g(windowName(), "QUERYFLAG2")=="1"){
+      			w#PRODUCTNO = r#.PRODUCTNO;
+      			w#PRODUCTNAME = r#.PRODUCTNAME;
+      			w#PRODUCTTYPE = r#.PRODUCTTYPE;
+      			w#PAYTYPE = r#.PAYTYPE;
+      		}else{
+      			addcombo("PRODUCTNO");
+      		};
+  	 '/>
+
+二、列表
+<item stringID="2XXXXXXYDKJZF001_T" type="UI_PROMPT">
+		<property name="top" value="3"/>
+		<property name="left" value="5"/>
+		<property name="height" value="1"/>
+		<property name="width" value="90"/>
+		<property name="text" value="协议号|卡代号|客户名称|证件类型|证件号|卡类型|银行卡号|手机号|签约状态|"/>
+</item>
+<item stringID="2XXXXXXYDKJZF001" type="UI_VTLIST">
+		<property name="top" value="4"/>
+		<property name="left" value="5"/>
+		<property name="height" value="14"/>
+		<property name="width" value="90"/>
+		<property name="wn_flags" value="WNF_CONTINUE_SELECT|WNF_NO_WRAP"/>
+    <property name="wof_flags" value="WOF_BORDER"/>
+</item>
+
+ <script_list>
+    <window stringID="YDKJZF001">
+			
+			<script name="SendPackScript_QYSREQ" type="WINDOW" value='
+      		s#IDXNUM = d#CUSTREGNO;
+      '/>
+			
+			<script name="RecvPackScript_QYSREQ" type="WINDOW" value='
+						    displayflds("2XXXXXXYDKJZF001");
+			'/>     
+	  	<script stringID="2XXXXXXYDKJZF001" type="UI_VTLIST" name="EnterScript" value='
+	  		openwin("YDKJZF002");
+	  		YDKJZF002.CUSTREGNO       = d#CUSTREGNO;
+				YDKJZF002.PROTOCOLNO      = d#PROTOCOLNO;
+				YDKJZF002.ACCOUNTNAME     = d#ACCOUNTNAME;
+				YDKJZF002.CERTIFICATETYPE = d#CERTIFICATETYPE;
+				YDKJZF002.CERTIFICATENO   = d#CERTIFICATENO;
+				YDKJZF002.BANKCARDTYPE    = d#BANKCARDTYPE;
+				YDKJZF002.BANKCARDNO      = d#BANKCARDNO;
+				YDKJZF002.MOBILEPHONE     = d#MOBILEPHONE;
+				YDKJZF002.STATUS          = d#STATUS;
+				
+				visible(1,"YDKJZF002.SUBMIT");
+				
+				if (d#STATUS == "1"){
+					disable("YDKJZF002.SUBMIT");
+				}else {
+					enable("YDKJZF002.SUBMIT");
+				};
+				curto("YDKJZF002.SUBMIT");
+				return(1);
+			'/>      
+	  	
+	  	<script stringID="2XXXXXXYDKJZF001" type="UI_VTLIST" name="PageDownScript" value='
+						query("QYSREQ");
+			'/> 
+	  	
+			<script stringID="STRSTATUS" type="UI_STRING" name="EnterScript" value='
+						clearfld("2XXXXXXYDKJZF001");
+						query("QYSREQ");
+	  	'/>
+    </window>
+  </script_list>
+  
+三、对话框
+1、错误框，带有错误标志的对话框
+errmsg(“出错了，找原因吧”);
+w#ERRORMSG = “出错了，找原因吧”;
+errmsg(w#ERRORMSG);
+
+2、普通的对话框，使用方式同errmsg()一致
+msgbox(“出错了，找原因吧”);
+
+3、弹出选择的对话框
+dlgmsgn() 与dlgmsg()
+区别在于dlgmsgn()光标默认选择no，dlgmsg()默认选择yes。此函数有返回值，选择yes返回 1（true），no返回0（false）。
+
+四、提示是否进行两次输入
+inputtwice ();
+或
+inputtwice(1); 
+如：
+<script stringID="TRANAM" type="UI_STRING" name="EnterScript" value='inputtwice();query("QRAGFG");'/>
+
+
+弹出密码键盘：
+输入一次
+<script stringID="PINKEY" type="UI_STRING" name="EnterScript" value='
+	     return(call("inputPwd_pinkey","123456789")); 
+'/>
+
+输入两次
+<script stringID="PINKEY1" type="UI_STRING" name="EnterScript" value='
+	    return(call("inputPwd_pinkey","123456789",2));
+'/>
+
+
+没有任何提示
+<item stringID="USPS" type="UI_STRING">
+        <property name="top" value="4"/>
+        <property name="left" value="18"/>
+        <property name="height" value="0"/>
+        <property name="width" value="11"/>
+        <property name="st_flags" value="STF_PASSWORD"/>
+        <property name="maxlength" value="8"/>
+        <property name="wof_flags" value="WOF_AUTO_CLEAR|WOF_BORDER"/>
+</item>
+
+五、在查询列表中，汉化
+
+STATUS     	  10	 1	R y s script ((STATUS =="0") ? "正常" : ((STATUS =="1") ? "解约" : STATUS))

@@ -1,0 +1,31 @@
+displayflds	： 从返回包中取出与窗口相关的字段的值,并显示在窗口上
+	最大参数个数： 【20】
+	参数意义：		
+		参数1： 字段名称
+		……
+	使用说明：
+
+	使用范例：
+		displayflds(“2XXXXXXQRTRAN”, “ACCTNO”); 
+将返回包中的 记录字段中的值显示在 2XXXXXXQRTRAN列表中, ACCTNO的值显示在窗口的ACCTNO控件中
+注意:
+	显示 VTLIST时要有相对应的格式显示文件, 否则不能显示
+	2XXXXXXQRTRAN所对应的显示文件为: prt/fm_qrtran.prt
+
+
+
+--------------------------
+
+
+
+displaywin	：从返回包中取出与窗口相关的字段的值,并显示在窗口上
+	最大参数个数： 【2】
+	参数意义：		
+		参数1： 窗口名称
+		参数2： 起始字段名称
+	使用说明：
+	使用范例：
+		displaywin (); 从返回报文件中取相关值显示到当前窗口;
+		displaywin (“OPCURR”); 从返回报文件中取相关值显示到OPCURR窗口;
+		displaywin (“OPCURR”,”ACCTNO”);  从返回报文件中取相关值显示到OPCURR窗口; 域为ACCTNO开始到结束..
+
